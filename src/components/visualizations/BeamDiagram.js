@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { useUnits } from '../../contexts/UnitContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
