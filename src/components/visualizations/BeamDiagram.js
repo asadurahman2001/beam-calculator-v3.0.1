@@ -212,7 +212,7 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.fill();
 
     // Draw magnitude label with units
-    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151';
+    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
     ctx.font = '12px Inter';
     ctx.textAlign = 'center';
     ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('force')}`, x, y + direction * (arrowLength + 15));
@@ -280,7 +280,7 @@ const BeamDiagram = ({ beamData, results }) => {
 
     // Draw magnitude labels with units
     if (startMag !== 0) {
-      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151';
+      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
       ctx.font = '12px Inter';
       ctx.textAlign = 'center';
       const labelY = y - startHeight - 15;
@@ -288,7 +288,7 @@ const BeamDiagram = ({ beamData, results }) => {
     }
     
     if (endMag !== 0 && endMag !== startMag) {
-      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151';
+      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
       ctx.font = '12px Inter';
       ctx.textAlign = 'center';
       const labelY = y - endHeight - 15;
@@ -333,7 +333,7 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.fill();
 
     // Draw magnitude label with units
-    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151';
+    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
     ctx.font = '12px Inter';
     ctx.textAlign = 'center';
     ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('moment')}`, x, y - 35);
