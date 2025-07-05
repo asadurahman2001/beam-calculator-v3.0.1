@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useUnits } from '../../contexts/UnitContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const BeamDiagram = ({ beamData, results }) => {
   const canvasRef = useRef(null);
@@ -75,12 +76,8 @@ const BeamDiagram = ({ beamData, results }) => {
 
   const drawSupport = (ctx, x, y, type, position, beamLength) => {
     ctx.save();
-    // Use theme-aware colors
-    const strokeColor = isDarkMode ? '#e5e7eb' : '#374151';
-    const fillColor = isDarkMode ? '#e5e7eb' : '#374151';
-    
-    ctx.strokeStyle = strokeColor;
-    ctx.fillStyle = fillColor;
+    ctx.strokeStyle = '#374151';
+    ctx.fillStyle = '#374151';
     ctx.lineWidth = 2;
 
     switch (type) {
@@ -216,7 +213,7 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.fill();
 
     // Draw magnitude label with units
-    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
+    ctx.fillStyle = '#374151';
     ctx.font = '12px Inter';
     ctx.textAlign = 'center';
     ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('force')}`, x, y + direction * (arrowLength + 15));
@@ -284,7 +281,7 @@ const BeamDiagram = ({ beamData, results }) => {
 
     // Draw magnitude labels with units
     if (startMag !== 0) {
-      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
+      ctx.fillStyle = '#374151';
       ctx.font = '12px Inter';
       ctx.textAlign = 'center';
       const labelY = y - startHeight - 15;
@@ -292,7 +289,7 @@ const BeamDiagram = ({ beamData, results }) => {
     }
     
     if (endMag !== 0 && endMag !== startMag) {
-      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
+      ctx.fillStyle = '#374151';
       ctx.font = '12px Inter';
       ctx.textAlign = 'center';
       const labelY = y - endHeight - 15;
@@ -337,7 +334,7 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.fill();
 
     // Draw magnitude label with units
-    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151';
+    ctx.fillStyle = '#374151';
     ctx.font = '12px Inter';
     ctx.textAlign = 'center';
     ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('moment')}`, x, y - 35);
@@ -347,9 +344,8 @@ const BeamDiagram = ({ beamData, results }) => {
 
   const drawDimensions = (ctx, startX, y, totalWidth, beamData) => {
     ctx.save();
-    const isDark = document.documentElement.classList.contains('dark');
-    ctx.strokeStyle = isDark ? '#9ca3af' : '#6b7280';
-    ctx.fillStyle = isDark ? '#9ca3af' : '#6b7280';
+    ctx.strokeStyle = '#6b7280';
+    ctx.fillStyle = '#6b7280';
     ctx.lineWidth = 1;
     ctx.font = '11px Inter';
     ctx.textAlign = 'center';
