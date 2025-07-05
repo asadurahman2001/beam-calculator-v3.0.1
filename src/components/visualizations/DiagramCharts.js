@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +13,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useUnits } from '../../contexts/UnitContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 ChartJS.register(
   CategoryScale,
@@ -26,24 +28,33 @@ ChartJS.register(
 
 const DiagramCharts = ({ beamData, results }) => {
   const { convertValue, getUnit } = useUnits();
+  const { isDarkMode } = useTheme();
+  const [chartKey, setChartKey] = useState(0);
 
-  const chartOptions = {
+  // Force chart re-render when theme changes
+  useEffect(() => {
+    setChartKey(prev => prev + 1);
+  }, [isDarkMode]);
+
+  // Dynamic chart options based on theme
+  const getChartOptions = (yAxisLabel) => ({
+
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,
         labels: {
-          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+          color: isDarkMode ? '#e5e7eb' : '#374151'
         }
       },
       tooltip: {
         mode: 'index',
         intersect: false,
-        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : '#ffffff',
-        titleColor: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
-        bodyColor: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
-        borderColor: document.documentElement.classList.contains('dark') ? '#6b7280' : '#d1d5db',
+        backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+        titleColor: isDarkMode ? '#e5e7eb' : '#374151',
+        bodyColor: isDarkMode ? '#e5e7eb' : '#374151',
+        borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
         borderWidth: 1,
         callbacks: {
           title: function(context) {
@@ -63,24 +74,29 @@ const DiagramCharts = ({ beamData, results }) => {
         title: {
           display: true,
           text: `Position along beam (${getUnit('length')})`,
-          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+          color: isDarkMode ? '#e5e7eb' : '#374151'
         },
         grid: {
           display: true,
-          color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+          color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
         },
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#6b7280'
+          color: isDarkMode ? '#d1d5db' : '#6b7280'
         }
       },
       y: {
         display: true,
+        title: {
+          display: true,
+          text: yAxisLabel,
+          color: isDarkMode ? '#e5e7eb' : '#374151'
+        },
         grid: {
           display: true,
-          color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+          color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
         },
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#6b7280'
+          color: isDarkMode ? '#d1d5db' : '#6b7280'
         }
       }
     },
@@ -89,7 +105,7 @@ const DiagramCharts = ({ beamData, results }) => {
       axis: 'x',
       intersect: false
     }
-  };
+  });
 
   // Convert data for display
   const displayXCoords = results.shearForce.x.map(x => convertValue(x, 'length', 'SI'));
@@ -212,20 +228,11 @@ const DiagramCharts = ({ beamData, results }) => {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Shear Force Diagram (SFD)</h3>
         <div className="h-64">
           {results.shearForce.x.length > 0 ? (
-            <Line data={shearForceData} options={{
-              ...chartOptions,
-              scales: {
-                ...chartOptions.scales,
-                y: {
-                  ...chartOptions.scales.y,
-                  title: {
-                    display: true,
-                    text: `Shear Force (${getUnit('force')})`,
-                    color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                  }
-                }
-              }
-            }} />
+            <Line 
+              key={`sfd-${chartKey}`}
+              data={shearForceData} 
+              options={getChartOptions(`Shear Force (${getUnit('force')})`)} 
+            />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
               <div className="text-center">
@@ -245,20 +252,11 @@ const DiagramCharts = ({ beamData, results }) => {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bending Moment Diagram (BMD)</h3>
         <div className="h-64">
           {results.bendingMoment.x.length > 0 ? (
-            <Line data={bendingMomentData} options={{
-              ...chartOptions,
-              scales: {
-                ...chartOptions.scales,
-                y: {
-                  ...chartOptions.scales.y,
-                  title: {
-                    display: true,
-                    text: `Bending Moment (${getUnit('moment')})`,
-                    color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                  }
-                }
-              }
-            }} />
+            <Line 
+              key={`bmd-${chartKey}`}
+              data={bendingMomentData} 
+              options={getChartOptions(`Bending Moment (${getUnit('moment')})`)} 
+            />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
               <div className="text-center">
@@ -278,20 +276,11 @@ const DiagramCharts = ({ beamData, results }) => {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Deflection Diagram</h3>
         <div className="h-64">
           {results.deflection.x.length > 0 ? (
-            <Line data={deflectionData} options={{
-              ...chartOptions,
-              scales: {
-                ...chartOptions.scales,
-                y: {
-                  ...chartOptions.scales.y,
-                  title: {
-                    display: true,
-                    text: `Deflection (${getUnit('deflection')})`,
-                    color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                  }
-                }
-              }
-            }} />
+            <Line 
+              key={`deflection-${chartKey}`}
+              data={deflectionData} 
+              options={getChartOptions(`Deflection (${getUnit('deflection')})`)} 
+            />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
               <div className="text-center">

@@ -9,7 +9,7 @@ const BeamDiagram = ({ beamData, results }) => {
 
   useEffect(() => {
     drawBeam();
-  }, [beamData, results]);
+  }, [beamData, results, isDarkMode]); // Add isDarkMode dependency
 
   const drawBeam = () => {
     const canvas = canvasRef.current;
