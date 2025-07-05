@@ -5,6 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 const BeamDiagram = ({ beamData, results }) => {
   const canvasRef = useRef(null);
   const { convertValue, getUnit } = useUnits();
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     drawBeam();
