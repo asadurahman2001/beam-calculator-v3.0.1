@@ -33,10 +33,18 @@ const DiagramCharts = ({ beamData, results }) => {
     plugins: {
       legend: {
         display: false,
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+        }
       },
       tooltip: {
         mode: 'index',
         intersect: false,
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : '#ffffff',
+        titleColor: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        bodyColor: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        borderColor: document.documentElement.classList.contains('dark') ? '#6b7280' : '#d1d5db',
+        borderWidth: 1,
         callbacks: {
           title: function(context) {
             const xValue = parseFloat(context[0].label);

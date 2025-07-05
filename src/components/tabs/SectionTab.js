@@ -41,6 +41,26 @@ const SectionTab = ({ beamData, updateBeamData }) => {
         const Iweb = (tw * Math.pow(hw, 3)) / 12;
         I = Iflange + Iweb;
         break;
+      case 't-beam':
+        const bfT = section.flangeWidth || 0.3; // Default 300mm
+        const tfT = section.flangeThickness || 0.05; // Default 50mm
+        const hwT = section.webHeight || 0.4; // Default 400mm
+        const twT = section.webThickness || 0.02; // Default 20mm
+        const totalHeightT = hwT + tfT;
+        
+        // T-beam moment of inertia calculation
+        // Calculate centroid first
+        const A1 = bfT * tfT; // Flange area
+        const A2 = twT * hwT; // Web area
+        const y1 = totalHeightT - tfT / 2; // Distance from bottom to flange centroid
+        const y2 = hwT / 2; // Distance from bottom to web centroid
+        const yBar = (A1 * y1 + A2 * y2) / (A1 + A2); // Centroid from bottom
+        
+        // Calculate moment of inertia about centroidal axis
+        const I1 = (bfT * Math.pow(tfT, 3)) / 12 + A1 * Math.pow(y1 - yBar, 2);
+        const I2 = (twT * Math.pow(hwT, 3)) / 12 + A2 * Math.pow(y2 - yBar, 2);
+        I = I1 + I2;
+        break;
       case 'custom':
         I = section.momentOfInertia || 1e-4;
         break;
@@ -91,6 +111,15 @@ const SectionTab = ({ beamData, updateBeamData }) => {
       webHeight: 0.4, 
       webThickness: 0.01,
       description: 'Standard steel I-beam'
+    },
+    { 
+      name: 'Standard T-Beam', 
+      type: 't-beam', 
+      flangeWidth: 0.3, 
+      flangeThickness: 0.05, 
+      webHeight: 0.4, 
+      webThickness: 0.02,
+      description: 'Standard concrete T-beam'
     }
   ];
 
@@ -137,6 +166,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
               <option value="rectangular">Rectangular</option>
               <option value="circular">Circular</option>
               <option value="i-beam">I-Beam</option>
+              <option value="t-beam">T-Beam</option>
               <option value="custom">Custom</option>
             </select>
           </div>
@@ -248,6 +278,64 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             </div>
           )}
 
+          {/* T-Beam Section */}
+          {(section.type || sectionType) === 't-beam' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Flange Width ({getUnit('length')})
+                </label>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={convertValue(section.flangeWidth || 0.3, 'length', 'SI').toFixed(3)}
+                  onChange={(e) => updateSectionProperty('flangeWidth', parseFloat(e.target.value) || 0)}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Flange Thickness ({getUnit('length')})
+                </label>
+                <input
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  value={convertValue(section.flangeThickness || 0.05, 'length', 'SI').toFixed(3)}
+                  onChange={(e) => updateSectionProperty('flangeThickness', parseFloat(e.target.value) || 0)}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Web Height ({getUnit('length')})
+                </label>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={convertValue(section.webHeight || 0.4, 'length', 'SI').toFixed(3)}
+                  onChange={(e) => updateSectionProperty('webHeight', parseFloat(e.target.value) || 0)}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Web Thickness ({getUnit('length')})
+                </label>
+                <input
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  value={convertValue(section.webThickness || 0.02, 'length', 'SI').toFixed(3)}
+                  onChange={(e) => updateSectionProperty('webThickness', parseFloat(e.target.value) || 0)}
+                  className="input-field"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Custom Section */}
           {(section.type || sectionType) === 'custom' && (
             <div>
@@ -327,6 +415,11 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   Diameter: {convertValue(section.diameter || 0.4, 'length', 'SI').toFixed(0)} {getUnit('length')}
                 </div>
               )}
+              {(section.type || sectionType) === 't-beam' && (
+                <div className="mt-1">
+                  T-Beam: {convertValue(section.flangeWidth || 0.3, 'length', 'SI').toFixed(0)} × {convertValue(section.flangeThickness || 0.05, 'length', 'SI').toFixed(0)} flange, {convertValue(section.webThickness || 0.02, 'length', 'SI').toFixed(0)} × {convertValue(section.webHeight || 0.4, 'length', 'SI').toFixed(0)} web {getUnit('length')}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -368,6 +461,14 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                 <rect x="90" y="45" width="20" height="60" />
                 {/* Bottom flange */}
                 <rect x="40" y="105" width="120" height="20" />
+              </g>
+            )}
+            {(section.type || sectionType) === 't-beam' && (
+              <g className="text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
+                {/* Top flange */}
+                <rect x="40" y="25" width="120" height="25" />
+                {/* Web */}
+                <rect x="90" y="50" width="20" height="75" />
               </g>
             )}
             {(section.type || sectionType) === 'custom' && (
