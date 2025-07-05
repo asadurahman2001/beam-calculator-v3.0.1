@@ -20,7 +20,9 @@ export const UNIT_SYSTEMS = {
     stress: { unit: 'kN/m²', factor: 1 },
     inertia: { unit: 'm⁴', factor: 1 },
     deflection: { unit: 'mm', factor: 1000 },
-    distributedLoad: { unit: 'kN/m', factor: 1 }
+    distributedLoad: { unit: 'kN/m', factor: 1 },
+    area: { unit: 'm²', factor: 1 },
+    firstMoment: { unit: 'm³', factor: 1 }
   },
   FPS: {
     name: 'FPS (Imperial)',
@@ -30,7 +32,9 @@ export const UNIT_SYSTEMS = {
     stress: { unit: 'kip/ft²', factor: 0.0208854 },
     inertia: { unit: 'ft⁴', factor: 115.862 },
     deflection: { unit: 'in', factor: 39.3701 },
-    distributedLoad: { unit: 'kip/ft', factor: 0.0685218 }
+    distributedLoad: { unit: 'kip/ft', factor: 0.0685218 },
+    area: { unit: 'ft²', factor: 10.7639 },
+    firstMoment: { unit: 'ft³', factor: 35.3147 }
   }
 };
 

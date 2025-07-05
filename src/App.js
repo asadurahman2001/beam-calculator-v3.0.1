@@ -27,6 +27,13 @@ function App() {
       type: 'rectangular',
       width: 0.3,
       height: 0.5
+    },
+    stressAnalysis: {
+      showBendingStress: true,
+      showShearStress: true,
+      showStressDistribution: true,
+      showStressDiagrams: true,
+      showStressValues: true
     }
   });
 

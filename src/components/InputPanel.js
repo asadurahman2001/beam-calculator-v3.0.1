@@ -5,6 +5,7 @@ import LoadsTab from './tabs/LoadsTab';
 import MomentsTab from './tabs/MomentsTab';
 import MaterialTab from './tabs/MaterialTab';
 import SectionTab from './tabs/SectionTab';
+import StressTab from './tabs/StressTab';
 
 const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => {
   const [activeTab, setActiveTab] = useState('length');
@@ -15,7 +16,8 @@ const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => 
     { id: 'loads', label: 'Loads', icon: '⬇️' },
     { id: 'moments', label: 'Moments', icon: '🔄' },
     { id: 'section', label: 'Section', icon: '⬜' },
-    { id: 'material', label: 'Material', icon: '🧱' }
+    { id: 'material', label: 'Material', icon: '🧱' },
+    { id: 'stress', label: 'Stress', icon: '📐' }
   ];
 
   const renderTabContent = () => {
@@ -32,6 +34,8 @@ const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => 
         return <SectionTab beamData={beamData} updateBeamData={updateBeamData} />;
       case 'material':
         return <MaterialTab beamData={beamData} updateBeamData={updateBeamData} resolution={resolution} setResolution={setResolution} />;
+      case 'stress':
+        return <StressTab beamData={beamData} updateBeamData={updateBeamData} />;
       default:
         return null;
     }

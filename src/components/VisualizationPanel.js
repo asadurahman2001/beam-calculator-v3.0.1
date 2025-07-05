@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BeamDiagram from './visualizations/BeamDiagram';
 import DiagramCharts from './visualizations/DiagramCharts';
+import StressAnalysis from './visualizations/StressAnalysis';
 import ResultsTables from './visualizations/ResultsTables';
 import { useUnits } from '../contexts/UnitContext';
 
@@ -11,6 +12,7 @@ const VisualizationPanel = ({ beamData, results }) => {
   const views = [
     { id: 'diagram', label: 'Beam Diagram', icon: '🏗️' },
     { id: 'charts', label: 'SFD, BMD & Deflection', icon: '📊' },
+    { id: 'stress', label: 'Stress Analysis', icon: '📐' },
     { id: 'tables', label: 'Results Tables', icon: '📋' }
   ];
 
@@ -20,6 +22,8 @@ const VisualizationPanel = ({ beamData, results }) => {
         return <BeamDiagram beamData={beamData} results={results} />;
       case 'charts':
         return <DiagramCharts beamData={beamData} results={results} />;
+      case 'stress':
+        return <StressAnalysis beamData={beamData} results={results} />;
       case 'tables':
         return <ResultsTables beamData={beamData} results={results} />;
       default:
