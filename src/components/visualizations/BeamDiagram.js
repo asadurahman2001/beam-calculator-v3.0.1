@@ -196,7 +196,6 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.restore();
   };
 
-  const drawPointLoad = (ctx, x, y, magnitude) => {
   const drawPointLoad = (ctx, x, y, load) => {
     const magnitude = load.magnitude || load;
     const angle = load.angle || 0;
