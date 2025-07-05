@@ -47,9 +47,13 @@ const BeamDiagram = ({ beamData, results }) => {
     // Draw point loads
     beamData.pointLoads.forEach(load => {
       const displayPos = convertValue(load.position, 'length', 'SI');
-      const displayMag = convertValue(load.magnitude, 'force', 'SI');
       const x = margin + displayPos * scale;
-      drawPointLoad(ctx, x, beamY - beamHeight/2, displayMag);
+      const displayLoad = {
+        magnitude: convertValue(load.magnitude, 'force', 'SI'),
+        angle: load.angle || 0,
+        isInclined: load.isInclined || false
+      };
+      drawPointLoad(ctx, x, beamY - beamHeight/2, displayLoad);
     });
 
     // Draw distributed loads
@@ -193,6 +197,11 @@ const BeamDiagram = ({ beamData, results }) => {
   };
 
   const drawPointLoad = (ctx, x, y, magnitude) => {
+  const drawPointLoad = (ctx, x, y, load) => {
+    const magnitude = load.magnitude || load;
+    const angle = load.angle || 0;
+    const isInclined = load.isInclined || false;
+    
     if (magnitude === 0) return;
 
     ctx.save();
@@ -200,28 +209,71 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.fillStyle = magnitude > 0 ? '#ef4444' : '#ef4444';
     ctx.lineWidth = 2;
 
-    const direction = magnitude > 0 ? -1 : 1;
-    const arrowLength = Math.min(50, Math.abs(magnitude) * 5);
+    if (isInclined) {
+      // Draw inclined load
+      const angleRad = (angle * Math.PI) / 180;
+      const arrowLength = Math.min(50, Math.abs(magnitude) * 5);
+      
+      // Calculate end point of the arrow
+      const endX = x + arrowLength * Math.sin(angleRad);
+      const endY = y - arrowLength * Math.cos(angleRad);
+      
+      // Draw arrow line
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+      
+      // Draw arrow head
+      const headLength = 10;
+      const headAngle = Math.PI / 6; // 30 degrees
+      
+      ctx.beginPath();
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(
+        endX - headLength * Math.cos(angleRad - headAngle),
+        endY + headLength * Math.sin(angleRad - headAngle)
+      );
+      ctx.lineTo(
+        endX - headLength * Math.cos(angleRad + headAngle),
+        endY + headLength * Math.sin(angleRad + headAngle)
+      );
+      ctx.closePath();
+      ctx.fill();
+      
+      // Draw magnitude label with angle
+      ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#374151';
+      ctx.font = '12px Inter';
+      ctx.textAlign = 'center';
+      const labelX = x + (arrowLength + 20) * Math.sin(angleRad);
+      const labelY = y - (arrowLength + 20) * Math.cos(angleRad);
+      ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('force')}`, labelX, labelY);
+      ctx.fillText(`∠${angle}°`, labelX, labelY + 12);
+    } else {
+      // Draw vertical load (existing code)
+      const direction = magnitude > 0 ? -1 : 1;
+      const arrowLength = Math.min(50, Math.abs(magnitude) * 5);
 
-    // Draw arrow line
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, y + direction * arrowLength);
-    ctx.stroke();
+      // Draw arrow line
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + direction * arrowLength);
+      ctx.stroke();
 
-    // Draw arrow head
-    ctx.beginPath();
-    ctx.moveTo(x, y + direction * arrowLength);
-    ctx.lineTo(x - 5, y + direction * (arrowLength - 10));
-    ctx.lineTo(x + 5, y + direction * (arrowLength - 10));
-    ctx.closePath();
-    ctx.fill();
+      // Draw arrow head
+      ctx.beginPath();
+      ctx.moveTo(x, y + direction * arrowLength);
+      ctx.lineTo(x - 5, y + direction * (arrowLength - 10));
+      ctx.lineTo(x + 5, y + direction * (arrowLength - 10));
+      ctx.closePath();
+      ctx.fill();
 
-    // Draw magnitude label with units and theme-aware color
-    ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#374151';
-    ctx.font = '12px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('force')}`, x, y + direction * (arrowLength + 15));
+      // Draw magnitude label with units and theme-aware color
+      ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#374151';
+      ctx.font = '12px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('force')}`, x, y + direction * (arrowLength + 15));
+    }
 
     ctx.restore();
   };

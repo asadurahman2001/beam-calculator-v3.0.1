@@ -6,7 +6,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
   const { getUnit, convertValue } = useUnits();
 
   const addPointLoad = () => {
-    const newLoad = { position: 0, magnitude: 0 };
+    const newLoad = { position: 0, magnitude: 0, angle: 0, isInclined: false };
     updateBeamData({
       pointLoads: [...beamData.pointLoads, newLoad]
     });
@@ -42,6 +42,16 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
     } else if (field === 'magnitude') {
       // Convert from display units to SI
       newLoads[index] = { ...newLoads[index], [field]: convertValue(value, 'force', null, 'SI') };
+    } else if (field === 'angle') {
+      // Angle is in degrees, no conversion needed
+      newLoads[index] = { ...newLoads[index], [field]: value };
+    } else if (field === 'isInclined') {
+      // Boolean field
+      newLoads[index] = { ...newLoads[index], [field]: value };
+      // Reset angle when switching to vertical
+      if (!value) {
+        newLoads[index] = { ...newLoads[index], angle: 0 };
+      }
     } else {
       newLoads[index] = { ...newLoads[index], [field]: value };
     }
@@ -91,6 +101,8 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
           {beamData.pointLoads.map((load, index) => {
             const displayPosition = convertValue(load.position, 'length', 'SI');
             const displayMagnitude = convertValue(load.magnitude, 'force', 'SI');
+            const angle = load.angle || 0;
+            const isInclined = load.isInclined || false;
             
             return (
               <div key={index} className="card">
@@ -104,53 +116,124 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  {/* Load Type Selection */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Position ({getUnit('length')})
+                      Load Type
                     </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max={convertValue(beamData.length, 'length', 'SI')}
-                      step="0.1"
-                      value={displayPosition}
-                      onChange={(e) => updatePointLoad(index, 'position', parseFloat(e.target.value) || 0)}
-                      className="input-field"
-                    />
+                    <div className="flex space-x-4">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name={`loadType_${index}`}
+                          checked={!isInclined}
+                          onChange={() => updatePointLoad(index, 'isInclined', false)}
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Vertical Load</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name={`loadType_${index}`}
+                          checked={isInclined}
+                          onChange={() => updatePointLoad(index, 'isInclined', true)}
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Inclined Load</span>
+                      </label>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Magnitude ({getUnit('force')})
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={Math.abs(displayMagnitude)}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value) || 0;
-                        const signedValue = load.magnitude >= 0 ? value : -value;
-                        updatePointLoad(index, 'magnitude', signedValue);
-                      }}
-                      className="input-field"
-                    />
-                  </div>
-                </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Position ({getUnit('length')})
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={convertValue(beamData.length, 'length', 'SI')}
+                        step="0.1"
+                        value={displayPosition}
+                        onChange={(e) => updatePointLoad(index, 'position', parseFloat(e.target.value) || 0)}
+                        className="input-field"
+                      />
+                    </div>
 
-                <div className="mt-3 flex space-x-2">
-                  <button
-                    onClick={() => updatePointLoad(index, 'magnitude', Math.abs(displayMagnitude))}
-                    className={`btn-secondary text-sm flex items-center ${load.magnitude >= 0 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''}`}
-                  >
-                    ⬆️ Upward
-                  </button>
-                  <button
-                    onClick={() => updatePointLoad(index, 'magnitude', -Math.abs(displayMagnitude))}
-                    className={`btn-secondary text-sm flex items-center ${load.magnitude < 0 ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' : ''}`}
-                  >
-                    ⬇️ Downward
-                  </button>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Magnitude ({getUnit('force')})
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={Math.abs(displayMagnitude)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value) || 0;
+                          const signedValue = load.magnitude >= 0 ? value : -value;
+                          updatePointLoad(index, 'magnitude', signedValue);
+                        }}
+                        className="input-field"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Angle input for inclined loads */}
+                  {isInclined && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Angle from Vertical (degrees)
+                      </label>
+                      <input
+                        type="number"
+                        min="-90"
+                        max="90"
+                        step="1"
+                        value={angle}
+                        onChange={(e) => updatePointLoad(index, 'angle', parseFloat(e.target.value) || 0)}
+                        className="input-field"
+                        placeholder="0 = vertical, positive = clockwise"
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Positive angles lean to the right, negative angles lean to the left
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Direction buttons for vertical loads only */}
+                  {!isInclined && (
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => updatePointLoad(index, 'magnitude', Math.abs(displayMagnitude))}
+                        className={`btn-secondary text-sm flex items-center ${load.magnitude >= 0 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''}`}
+                      >
+                        ⬆️ Upward
+                      </button>
+                      <button
+                        onClick={() => updatePointLoad(index, 'magnitude', -Math.abs(displayMagnitude))}
+                        className={`btn-secondary text-sm flex items-center ${load.magnitude < 0 ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' : ''}`}
+                      >
+                        ⬇️ Downward
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Load description */}
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                    {isInclined ? (
+                      <div>
+                        <div><strong>Inclined Load:</strong> {Math.abs(displayMagnitude).toFixed(2)} {getUnit('force')} at {angle}°</div>
+                        <div>Vertical component: {(Math.abs(displayMagnitude) * Math.cos(angle * Math.PI / 180)).toFixed(2)} {getUnit('force')} {load.magnitude >= 0 ? '↑' : '↓'}</div>
+                        <div>Horizontal component: {(Math.abs(displayMagnitude) * Math.sin(angle * Math.PI / 180)).toFixed(2)} {getUnit('force')} {angle >= 0 ? '→' : '←'}</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <strong>Vertical Load:</strong> {Math.abs(displayMagnitude).toFixed(2)} {getUnit('force')} {load.magnitude >= 0 ? 'Upward' : 'Downward'}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
