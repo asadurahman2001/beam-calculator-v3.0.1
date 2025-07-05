@@ -217,8 +217,8 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.closePath();
     ctx.fill();
 
-    // Draw magnitude label with units
-    ctx.fillStyle = '#374151';
+    // Draw magnitude label with units and theme-aware color
+    ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#374151';
     ctx.font = '12px Inter';
     ctx.textAlign = 'center';
     ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('force')}`, x, y + direction * (arrowLength + 15));
