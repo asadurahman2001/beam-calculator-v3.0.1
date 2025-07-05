@@ -7,11 +7,7 @@ const BeamDiagram = ({ beamData, results }) => {
   const { convertValue, getUnit } = useUnits();
   const { isDarkMode } = useTheme();
 
-  useEffect(() => {
-    drawBeam();
-  }, [beamData, results, isDarkMode]); // Add isDarkMode dependency
-
-  const drawBeam = () => {
+  const drawBeam = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -77,7 +73,11 @@ const BeamDiagram = ({ beamData, results }) => {
 
     // Draw dimensions
     drawDimensions(ctx, margin, beamY + 60, displayLength * scale, beamData);
-  };
+  }, [beamData, results, isDarkMode, convertValue, getUnit]);
+
+  useEffect(() => {
+    drawBeam();
+  }, [drawBeam]);
 
   const drawSupport = (ctx, x, y, type, position, beamLength) => {
     ctx.save();
@@ -192,6 +192,10 @@ const BeamDiagram = ({ beamData, results }) => {
         
         ctx.restore();
         break;
+      default:
+        // Handle unknown support types
+        console.warn(`Unknown support type: ${type}`);
+        break;
     }
     ctx.restore();
   };
@@ -286,10 +290,6 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.lineWidth = 1;
 
     const maxMag = Math.max(Math.abs(startMag), Math.abs(endMag));
-    
-    // For downward loads, draw above the beam with downward arrows
-    const startDirection = startMag >= 0 ? -1 : -1; // Always draw above beam
-    const endDirection = endMag >= 0 ? -1 : -1;     // Always draw above beam
     
     const startHeight = (Math.abs(startMag) / maxMag) * 40;
     const endHeight = (Math.abs(endMag) / maxMag) * 40;
