@@ -388,12 +388,47 @@ const StressAnalysis = ({ beamData, results }) => {
       {/* Bending Stress Diagram (BSD) */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bending Stress Diagram (BSD)</h3>
-        <div className="h-64">
+        <div className="h-80">
           {results.shearForce.x.length > 0 ? (
             <Line 
               key={`bsd-${chartKey}`}
               data={bendingStressData} 
-              options={getChartOptions(`Bending Stress (${getUnit('stress')})`)} 
+              options={{
+                ...getChartOptions(`Bending Stress (${getUnit('stress')})`),
+                indexAxis: 'y',
+                scales: {
+                  x: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: `Bending Stress (${getUnit('stress')})`,
+                      color: isDarkMode ? '#e5e7eb' : '#374151'
+                    },
+                    grid: {
+                      display: true,
+                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                    }
+                  },
+                  y: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: `Position along beam (${getUnit('length')})`,
+                      color: isDarkMode ? '#e5e7eb' : '#374151'
+                    },
+                    grid: {
+                      display: true,
+                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                    }
+                  }
+                }
+              }} 
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
@@ -412,12 +447,47 @@ const StressAnalysis = ({ beamData, results }) => {
       {/* Shear Stress Diagram (SSD) */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Shear Stress Diagram (SSD)</h3>
-        <div className="h-64">
+        <div className="h-80">
           {results.shearForce.x.length > 0 ? (
             <Line 
               key={`ssd-${chartKey}`}
               data={shearStressData} 
-              options={getChartOptions(`Shear Stress (${getUnit('stress')})`)} 
+              options={{
+                ...getChartOptions(`Shear Stress (${getUnit('stress')})`),
+                indexAxis: 'y',
+                scales: {
+                  x: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: `Shear Stress (${getUnit('stress')})`,
+                      color: isDarkMode ? '#e5e7eb' : '#374151'
+                    },
+                    grid: {
+                      display: true,
+                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                    }
+                  },
+                  y: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: `Position along beam (${getUnit('length')})`,
+                      color: isDarkMode ? '#e5e7eb' : '#374151'
+                    },
+                    grid: {
+                      display: true,
+                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                    }
+                  }
+                }
+              }} 
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
@@ -430,6 +500,248 @@ const StressAnalysis = ({ beamData, results }) => {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Stress Diagrams and Section Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Bending Stress Diagram - Vertical */}
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Bending Stress Diagram (BSD)
+          </h3>
+          <div className="h-96">
+            {results.shearForce.x.length > 0 ? (
+              <Line 
+                key={`bsd-vertical-${chartKey}`}
+                data={bendingStressData} 
+                options={{
+                  ...getChartOptions(`Bending Stress (${getUnit('stress')})`),
+                  indexAxis: 'y',
+                  scales: {
+                    x: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: `Bending Stress (${getUnit('stress')})`,
+                        color: isDarkMode ? '#e5e7eb' : '#374151'
+                      },
+                      grid: {
+                        display: true,
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                      },
+                      ticks: {
+                        color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      }
+                    },
+                    y: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: `Position (${getUnit('length')})`,
+                        color: isDarkMode ? '#e5e7eb' : '#374151'
+                      },
+                      grid: {
+                        display: true,
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                      },
+                      ticks: {
+                        color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      }
+                    }
+                  }
+                }} 
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                <div className="text-center">
+                  <svg className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <p>No data to display</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Section Visualization */}
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Cross-Section at {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
+          </h3>
+          <div className="flex flex-col items-center justify-center h-96">
+            {/* Section Preview */}
+            <div className="mb-6">
+              <svg width="200" height="200" viewBox="0 0 200 200" className="border border-gray-300 dark:border-gray-600 rounded">
+                {(beamData.section?.type || 'rectangular') === 'rectangular' && (
+                  <>
+                    <rect
+                      x="50"
+                      y="50"
+                      width="100"
+                      height="100"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                    {/* Neutral axis */}
+                    <line
+                      x1="30"
+                      y1="100"
+                      x2="170"
+                      y2="100"
+                      stroke="currentColor"
+                      strokeWidth="1"
+                      strokeDasharray="5,5"
+                      className="text-yellow-500"
+                    />
+                    <text x="175" y="105" fontSize="10" fill="currentColor" className="text-yellow-600 dark:text-yellow-400">
+                      N.A.
+                    </text>
+                    {/* Stress arrows for bending */}
+                    <g className="text-purple-600 dark:text-purple-400">
+                      {/* Compression arrows (top) */}
+                      <polygon points="45,60 40,55 40,65" fill="currentColor" />
+                      <polygon points="155,60 160,55 160,65" fill="currentColor" />
+                      <line x1="40" y1="60" x2="160" y2="60" stroke="currentColor" strokeWidth="1" />
+                      <text x="100" y="45" fontSize="8" textAnchor="middle" fill="currentColor">Compression</text>
+                      
+                      {/* Tension arrows (bottom) */}
+                      <polygon points="40,140 45,135 45,145" fill="currentColor" />
+                      <polygon points="160,140 155,135 155,145" fill="currentColor" />
+                      <line x1="40" y1="140" x2="160" y2="140" stroke="currentColor" strokeWidth="1" />
+                      <text x="100" y="165" fontSize="8" textAnchor="middle" fill="currentColor">Tension</text>
+                    </g>
+                  </>
+                )}
+                {(beamData.section?.type) === 'circular' && (
+                  <>
+                    <circle
+                      cx="100"
+                      cy="100"
+                      r="50"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                    {/* Neutral axis */}
+                    <line
+                      x1="30"
+                      y1="100"
+                      x2="170"
+                      y2="100"
+                      stroke="currentColor"
+                      strokeWidth="1"
+                      strokeDasharray="5,5"
+                      className="text-yellow-500"
+                    />
+                  </>
+                )}
+                {(beamData.section?.type) === 'i-beam' && (
+                  <>
+                    <g className="text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
+                      {/* Top flange */}
+                      <rect x="40" y="50" width="120" height="20" />
+                      {/* Web */}
+                      <rect x="90" y="70" width="20" height="60" />
+                      {/* Bottom flange */}
+                      <rect x="40" y="130" width="120" height="20" />
+                    </g>
+                    {/* Neutral axis */}
+                    <line
+                      x1="30"
+                      y1="100"
+                      x2="170"
+                      y2="100"
+                      stroke="currentColor"
+                      strokeWidth="1"
+                      strokeDasharray="5,5"
+                      className="text-yellow-500"
+                    />
+                  </>
+                )}
+              </svg>
+            </div>
+            
+            {/* Stress values at this position */}
+            <div className="text-center space-y-2">
+              <div className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                Max Bending Stress: {convertValue(stressAtAnalysisPoint.bendingStress, 'stress', 'SI').toFixed(2)} {getUnit('stress')}
+              </div>
+              <div className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                Max Shear Stress: {convertValue(stressAtAnalysisPoint.shearStress, 'stress', 'SI').toFixed(2)} {getUnit('stress')}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                M = {convertValue(stressAtAnalysisPoint.moment, 'moment', 'SI').toFixed(2)} {getUnit('moment')}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                V = {convertValue(stressAtAnalysisPoint.shearForce, 'force', 'SI').toFixed(2)} {getUnit('force')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Shear Stress Diagram - Vertical */}
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Shear Stress Diagram (SSD)
+          </h3>
+          <div className="h-96">
+            {results.shearForce.x.length > 0 ? (
+              <Line 
+                key={`ssd-vertical-${chartKey}`}
+                data={shearStressData} 
+                options={{
+                  ...getChartOptions(`Shear Stress (${getUnit('stress')})`),
+                  indexAxis: 'y',
+                  scales: {
+                    x: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: `Shear Stress (${getUnit('stress')})`,
+                        color: isDarkMode ? '#e5e7eb' : '#374151'
+                      },
+                      grid: {
+                        display: true,
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                      },
+                      ticks: {
+                        color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      }
+                    },
+                    y: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: `Position (${getUnit('length')})`,
+                        color: isDarkMode ? '#e5e7eb' : '#374151'
+                      },
+                      grid: {
+                        display: true,
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                      },
+                      ticks: {
+                        color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      }
+                    }
+                  }
+                }} 
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                <div className="text-center">
+                  <svg className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  <p>No data to display</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
