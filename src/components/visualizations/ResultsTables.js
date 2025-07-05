@@ -4,17 +4,19 @@ import { useUnits } from '../../contexts/UnitContext';
 const ResultsTables = ({ beamData, results }) => {
   const { convertValue, getUnit } = useUnits();
 
-  const generateCombinedTableData = (interval = 1.0) => {
+  const generateCombinedTableData = () => {
     if (results.shearForce.x.length === 0) return [];
     
     const tableData = [];
-    const displayInterval = convertValue(interval, 'length', 'SI');
+    // Convert 1 unit in current system to SI for comparison
+    const siInterval = convertValue(1.0, 'length', null, 'SI');
     
     for (let i = 0; i < results.shearForce.x.length; i++) {
       const x = results.shearForce.x[i];
       const displayX = convertValue(x, 'length', 'SI');
       
-      if (displayX % displayInterval === 0 || Math.abs(displayX - convertValue(beamData.length, 'length', 'SI')) < 0.01) {
+      // Check if x (in SI) is at interval positions or at beam end
+      if (Math.abs(x % siInterval) < 1e-6 || Math.abs(x - beamData.length) < 1e-6) {
         const displayShear = convertValue(results.shearForce.y[i], 'force', 'SI');
         const displayMoment = convertValue(results.bendingMoment.y[i], 'moment', 'SI');
         const displayDeflection = convertValue(results.deflection.y[i] * 1000, 'deflection', 'SI'); // Convert from m to mm first
@@ -30,7 +32,7 @@ const ResultsTables = ({ beamData, results }) => {
     return tableData;
   };
 
-  const combinedTable = generateCombinedTableData(1.0);
+  const combinedTable = generateCombinedTableData();
 
   return (
     <div className="space-y-6">
@@ -94,7 +96,7 @@ const ResultsTables = ({ beamData, results }) => {
 
       {/* Combined Results Table */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analysis Results (every 1 {getUnit('length')})</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analysis Results (every 1 {getUnit('length')} interval)</h3>
         {combinedTable.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

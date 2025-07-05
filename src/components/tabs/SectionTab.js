@@ -182,7 +182,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.width || 0.3, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.width || 0.3, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('width', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -195,7 +195,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.height || 0.5, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.height || 0.5, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('height', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -213,7 +213,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                 type="number"
                 min="0.01"
                 step="0.01"
-                value={convertValue(section.diameter || 0.4, 'length', 'SI').toFixed(3)}
+                value={convertValue(section.diameter || 0.4, 'length', 'SI')}
                 onChange={(e) => updateSectionProperty('diameter', parseFloat(e.target.value) || 0)}
                 className="input-field"
               />
@@ -231,7 +231,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.flangeWidth || 0.2, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.flangeWidth || 0.2, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeWidth', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -244,7 +244,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.flangeThickness || 0.02, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.flangeThickness || 0.02, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -257,7 +257,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.webHeight || 0.4, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.webHeight || 0.4, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('webHeight', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -270,7 +270,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.webThickness || 0.01, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.webThickness || 0.01, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('webThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -289,7 +289,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.flangeWidth || 0.3, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.flangeWidth || 0.3, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeWidth', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -302,7 +302,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.flangeThickness || 0.05, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.flangeThickness || 0.05, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -315,7 +315,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.webHeight || 0.4, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.webHeight || 0.4, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('webHeight', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -328,7 +328,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.webThickness || 0.02, 'length', 'SI').toFixed(3)}
+                  value={convertValue(section.webThickness || 0.02, 'length', 'SI')}
                   onChange={(e) => updateSectionProperty('webThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -346,7 +346,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                 type="number"
                 min="1e-8"
                 step="1e-8"
-                value={convertValue(section.momentOfInertia || 1e-4, 'inertia', 'SI').toExponential(2)}
+                value={convertValue(section.momentOfInertia || 1e-4, 'inertia', 'SI')}
                 onChange={(e) => {
                   const siValue = convertValue(parseFloat(e.target.value) || 0, 'inertia', null, 'SI');
                   updateBeamData({
