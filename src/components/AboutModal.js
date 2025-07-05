@@ -3,7 +3,7 @@ import React from 'react';
 const AboutModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full mx-4 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">About Beam Calculator</h2>
           <button
@@ -16,7 +16,7 @@ const AboutModal = ({ onClose }) => {
           </button>
         </div>
         
-        <div className="space-y-4 text-center">
+        <div className="space-y-3 text-center">
           <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -25,7 +25,7 @@ const AboutModal = ({ onClose }) => {
           
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Beam SFD, BMD & Deflection Calculator</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-3 text-sm">
               A professional structural analysis tool for calculating shear force diagrams, 
               bending moment diagrams, and beam deflections.
             </p>
@@ -33,12 +33,15 @@ const AboutModal = ({ onClose }) => {
           
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Developer Information</h4>
-            <div className="space-y-1 text-gray-700 dark:text-gray-300">
+            <div className="space-y-1 text-gray-700 dark:text-gray-300 text-sm">
               <p className="font-medium">Md. Asadur Rahman</p>
               <p className="text-sm">Roll: 2100160</p>
-              <p className="text-sm">Rajshahi University of Engineering & Technology</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-                Developed as part of practicing and applying concepts from a structural analysis academic course.
+              <p className="text-xs">Rajshahi University of Engineering & Technology</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                mdasadur5027@gmail.com
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Developed for practicing structural analysis concepts.
               </p>
             </div>
           </div>
@@ -46,7 +49,7 @@ const AboutModal = ({ onClose }) => {
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Features</h4>
             <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-              <li>• Support for fixed, hinge, roller, and internal hinge supports</li>
+              <li>• Fixed, hinge, roller, and internal hinge supports</li>
               <li>• Point loads and distributed loads</li>
               <li>• Applied moments analysis</li>
               <li>• Real-time SFD, BMD, and deflection calculations</li>
@@ -57,7 +60,7 @@ const AboutModal = ({ onClose }) => {
           </div>
         </div>
         
-        <div className="mt-6 flex justify-end">
+        <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
             className="btn-primary"
