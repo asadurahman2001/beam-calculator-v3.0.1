@@ -286,7 +286,7 @@ const BeamDiagram = ({ beamData, results }) => {
 
     // Draw magnitude labels with units
     if (startMag !== 0) {
-      ctx.fillStyle = '#374151';
+      ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#374151';
       ctx.font = '12px Inter';
       ctx.textAlign = 'center';
       const labelY = y - startHeight - 15;
@@ -294,7 +294,7 @@ const BeamDiagram = ({ beamData, results }) => {
     }
     
     if (endMag !== 0 && endMag !== startMag) {
-      ctx.fillStyle = '#374151';
+      ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#374151';
       ctx.font = '12px Inter';
       ctx.textAlign = 'center';
       const labelY = y - endHeight - 15;
