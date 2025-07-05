@@ -109,7 +109,7 @@ const SupportsTab = ({ beamData, updateBeamData }) => {
                     min="0"
                     max={convertValue(beamData.length, 'length', 'SI')}
                     step="0.1"
-                    value={displayPosition.toFixed(2)}
+                    value={displayPosition}
                     onChange={(e) => updateSupport(index, 'position', parseFloat(e.target.value) || 0)}
                     className="input-field"
                   />

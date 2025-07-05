@@ -25,7 +25,7 @@ const LengthTab = ({ beamData, updateBeamData }) => {
           min="1"
           max="1000"
           step="0.1"
-          value={displayLength.toFixed(2)}
+          value={displayLength}
           onChange={handleLengthChange}
           className="input-field"
           placeholder="Enter beam length"

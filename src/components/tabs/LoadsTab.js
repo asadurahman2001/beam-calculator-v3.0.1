@@ -114,7 +114,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                       min="0"
                       max={convertValue(beamData.length, 'length', 'SI')}
                       step="0.1"
-                      value={displayPosition.toFixed(2)}
+                      value={displayPosition}
                       onChange={(e) => updatePointLoad(index, 'position', parseFloat(e.target.value) || 0)}
                       className="input-field"
                     />
@@ -127,7 +127,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                     <input
                       type="number"
                       step="0.5"
-                      value={Math.abs(displayMagnitude).toFixed(2)}
+                      value={Math.abs(displayMagnitude)}
                       onChange={(e) => {
                         const value = parseFloat(e.target.value) || 0;
                         const signedValue = load.magnitude >= 0 ? value : -value;
@@ -201,7 +201,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                       min="0"
                       max={convertValue(beamData.length, 'length', 'SI')}
                       step="0.1"
-                      value={displayStartPos.toFixed(2)}
+                      value={displayStartPos}
                       onChange={(e) => updateDistributedLoad(index, 'startPos', parseFloat(e.target.value) || 0)}
                       className="input-field"
                     />
@@ -216,7 +216,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                       min="0"
                       max={convertValue(beamData.length, 'length', 'SI')}
                       step="0.1"
-                      value={displayEndPos.toFixed(2)}
+                      value={displayEndPos}
                       onChange={(e) => updateDistributedLoad(index, 'endPos', parseFloat(e.target.value) || 0)}
                       className="input-field"
                     />
@@ -231,7 +231,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                     <input
                       type="number"
                       step="0.5"
-                      value={Math.abs(displayStartMag).toFixed(2)}
+                      value={Math.abs(displayStartMag)}
                       onChange={(e) => {
                         const value = parseFloat(e.target.value) || 0;
                         const signedValue = load.startMag >= 0 ? value : -value;
@@ -262,7 +262,7 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                     <input
                       type="number"
                       step="0.5"
-                      value={Math.abs(displayEndMag).toFixed(2)}
+                      value={Math.abs(displayEndMag)}
                       onChange={(e) => {
                         const value = parseFloat(e.target.value) || 0;
                         const signedValue = load.endMag >= 0 ? value : -value;

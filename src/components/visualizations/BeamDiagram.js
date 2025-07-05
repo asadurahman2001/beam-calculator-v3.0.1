@@ -349,8 +349,10 @@ const BeamDiagram = ({ beamData, results }) => {
 
   const drawDimensions = (ctx, startX, y, totalWidth, beamData) => {
     ctx.save();
-    ctx.strokeStyle = '#6b7280';
-    ctx.fillStyle = '#6b7280';
+    // Use theme-aware colors for better visibility
+    const dimensionColor = isDarkMode ? '#d1d5db' : '#374151';
+    ctx.strokeStyle = dimensionColor;
+    ctx.fillStyle = dimensionColor;
     ctx.lineWidth = 1;
     ctx.font = '11px Inter';
     ctx.textAlign = 'center';

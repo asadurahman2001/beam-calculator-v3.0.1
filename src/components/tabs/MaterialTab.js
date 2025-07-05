@@ -53,7 +53,7 @@ const MaterialTab = ({ beamData, updateBeamData, resolution, setResolution }) =>
               min="1e6"
               max="1e9"
               step="1e6"
-              value={displayE.toFixed(0)}
+              value={displayE}
               onChange={(e) => updateMaterialProperty('E', parseFloat(e.target.value) || 0)}
               className="input-field"
             />
@@ -71,7 +71,7 @@ const MaterialTab = ({ beamData, updateBeamData, resolution, setResolution }) =>
               min="1e-8"
               max="1e-2"
               step="1e-8"
-              value={displayI.toExponential(2)}
+              value={displayI}
               onChange={(e) => updateMaterialProperty('I', parseFloat(e.target.value) || 0)}
               className="input-field"
             />
