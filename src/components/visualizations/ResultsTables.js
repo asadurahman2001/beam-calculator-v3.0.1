@@ -174,6 +174,30 @@ const ResultsTables = ({ beamData, results }) => {
           </div>
         </div>
       </div>
+
+      {/* Load Information */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Load Information</h3>
+        <div className="space-y-2 text-sm">
+          {beamData.pointLoads.map((load, idx) => {
+            const displayPos = convertValue(load.position, 'length', 'SI');
+            const displayMag = convertValue(load.magnitude, 'force', 'SI');
+            const isInclined = load.isInclined || false;
+            const angle = load.angle || 0;
+            
+            return (
+              <div key={idx} className="flex justify-between">
+                <span>Point Load {idx + 1}:</span>
+                <span>
+                  {Math.abs(displayMag).toFixed(2)} {getUnit('force')} 
+                  {isInclined && ` (∠${angle}°)`} 
+                  at {displayPos.toFixed(2)} {getUnit('length')}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

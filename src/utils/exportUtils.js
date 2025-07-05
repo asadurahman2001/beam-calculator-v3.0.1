@@ -149,8 +149,17 @@ export const exportResultsToPDF = async (beamData, results) => {
       yPosition += 8;
       pdf.setFont('helvetica', 'normal');
       beamData.pointLoads.forEach((load, index) => {
-        const direction = load.magnitude > 0 ? 'Upward' : 'Downward';
-        pdf.text(`  ${index + 1}. ${Math.abs(load.magnitude)} kN (${direction}) at ${load.position} m`, margin, yPosition);
+        const isInclined = load.isInclined || false;
+        const angle = load.angle || 0;
+        
+        if (isInclined) {
+          const verticalComp = Math.abs(load.magnitude) * Math.cos(angle * Math.PI / 180);
+          const horizontalComp = Math.abs(load.magnitude) * Math.sin(angle * Math.PI / 180);
+          pdf.text(`  ${index + 1}. ${Math.abs(load.magnitude)} kN at ${angle}° (V: ${verticalComp.toFixed(2)} kN, H: ${horizontalComp.toFixed(2)} kN) at ${load.position} m`, margin, yPosition);
+        } else {
+          const direction = load.magnitude > 0 ? 'Upward' : 'Downward';
+          pdf.text(`  ${index + 1}. ${Math.abs(load.magnitude)} kN (${direction}) at ${load.position} m`, margin, yPosition);
+        }
         yPosition += 6;
       });
       yPosition += 5;

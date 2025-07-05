@@ -34,9 +34,13 @@ const calculateFixedSupportReactions = (support, pointLoads, distributedLoads, m
   const fixedSupportPos = support.position;
 
   // Point loads
-  pointLoads.forEach(({ position, magnitude }) => {
-    sumPointLoads += magnitude;
-    sumPointLoadsMoments += magnitude * Math.abs(position - fixedSupportPos);
+  pointLoads.forEach((load) => {
+    const { position, magnitude, angle = 0, isInclined = false } = load;
+    // For inclined loads, only consider the vertical component for reactions
+    const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
+    
+    sumPointLoads += verticalComponent;
+    sumPointLoadsMoments += verticalComponent * Math.abs(position - fixedSupportPos);
   });
 
   // Distributed loads
@@ -84,9 +88,13 @@ const calculateTwoSupportReactions = (supports, pointLoads, distributedLoads, mo
   let sumExternalMoments = 0;
 
   // Point loads
-  pointLoads.forEach(({ position, magnitude }) => {
-    sumPointLoads += magnitude;
-    sumPointLoadsMoments += magnitude * position;
+  pointLoads.forEach((load) => {
+    const { position, magnitude, angle = 0, isInclined = false } = load;
+    // For inclined loads, only consider the vertical component for reactions
+    const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
+    
+    sumPointLoads += verticalComponent;
+    sumPointLoadsMoments += verticalComponent * position;
   });
 
   // Distributed loads
@@ -163,9 +171,13 @@ const calculateThreeSupportWithInternalHinge = (supports, pointLoads, distribute
   let sumExternalMoments = 0;
 
   // Point loads
-  pointLoads.forEach(({ position, magnitude }) => {
-    sumPointLoads += magnitude;
-    sumPointLoadsMoments += magnitude * position;
+  pointLoads.forEach((load) => {
+    const { position, magnitude, angle = 0, isInclined = false } = load;
+    // For inclined loads, only consider the vertical component for reactions
+    const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
+    
+    sumPointLoads += verticalComponent;
+    sumPointLoadsMoments += verticalComponent * position;
   });
 
   // Distributed loads
@@ -191,10 +203,14 @@ const calculateThreeSupportWithInternalHinge = (supports, pointLoads, distribute
   let loadOnLeft = 0;
 
   // Point loads on left side of hinge
-  pointLoads.forEach(({ position, magnitude }) => {
+  pointLoads.forEach((load) => {
+    const { position, magnitude, angle = 0, isInclined = false } = load;
+    // For inclined loads, only consider the vertical component
+    const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
+    
     if (position < hingePos) {
-      loadOnLeft += magnitude;
-      momentAboutHingeLeft += magnitude * (hingePos - position);
+      loadOnLeft += verticalComponent;
+      momentAboutHingeLeft += verticalComponent * (hingePos - position);
     }
   });
 
@@ -304,10 +320,14 @@ export const calculateShearForce = (supportReactions, pointLoads, distributedLoa
   });
 
   // Add point loads
-  pointLoads.forEach(({ position, magnitude }) => {
+  pointLoads.forEach((load) => {
+    const { position, magnitude, angle = 0, isInclined = false } = load;
+    // For inclined loads, only consider the vertical component for shear force
+    const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
+    
     for (let i = 0; i < xCoords.length; i++) {
       if (xCoords[i] >= position) {
-        shear[i] += magnitude;
+        shear[i] += verticalComponent;
       }
     }
   });
@@ -370,10 +390,14 @@ export const calculateBendingMoment = (supports, supportReactions, supportMoment
   }
 
   // Add point loads
-  pointLoads.forEach(({ position, magnitude }) => {
+  pointLoads.forEach((load) => {
+    const { position, magnitude, angle = 0, isInclined = false } = load;
+    // For inclined loads, only consider the vertical component for bending moment
+    const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
+    
     for (let i = 0; i < xCoords.length; i++) {
       if (xCoords[i] >= position) {
-        moment[i] += magnitude * (xCoords[i] - position);
+        moment[i] += verticalComponent * (xCoords[i] - position);
       }
     }
   });
