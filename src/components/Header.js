@@ -8,7 +8,7 @@ const Header = ({ beamData, results }) => {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
-  const { unitSystem, toggleUnitSystem, units } = useUnits();
+  const { toggleUnitSystem, units } = useUnits();
 
   const handleExportResults = async () => {
     if (!results || !results.shearForce || results.shearForce.x.length === 0) {

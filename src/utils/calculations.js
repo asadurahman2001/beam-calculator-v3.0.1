@@ -200,7 +200,6 @@ const calculateThreeSupportWithInternalHinge = (supports, pointLoads, distribute
 
   // Calculate moment about the internal hinge for loads on left side
   let momentAboutHingeLeft = 0;
-  let loadOnLeft = 0;
 
   // Point loads on left side of hinge
   pointLoads.forEach((load) => {
@@ -209,7 +208,6 @@ const calculateThreeSupportWithInternalHinge = (supports, pointLoads, distribute
     const verticalComponent = isInclined ? magnitude * Math.cos(angle * Math.PI / 180) : magnitude;
     
     if (position < hingePos) {
-      loadOnLeft += verticalComponent;
       momentAboutHingeLeft += verticalComponent * (hingePos - position);
     }
   });
@@ -220,7 +218,6 @@ const calculateThreeSupportWithInternalHinge = (supports, pointLoads, distribute
       // Entire load is on left side
       const length = Math.abs(endPos - startPos);
       const totalLoad = 0.5 * (startMag + endMag) * length;
-      loadOnLeft += totalLoad;
       
       if (endMag + startMag !== 0) {
         const centroidLeft = (length / 3) * ((2 * endMag + startMag) / (endMag + startMag));
@@ -234,7 +231,6 @@ const calculateThreeSupportWithInternalHinge = (supports, pointLoads, distribute
       const avgLoad = (startMag + loadAtHinge) / 2;
       const totalLoadLeft = avgLoad * leftLength;
       
-      loadOnLeft += totalLoadLeft;
       momentAboutHingeLeft += totalLoadLeft * (leftLength / 2);
     }
   });

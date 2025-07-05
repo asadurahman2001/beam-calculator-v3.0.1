@@ -134,7 +134,7 @@ const BeamDiagram = ({ beamData, results }) => {
         ctx.fill();
         ctx.beginPath();
         ctx.moveTo(x - 15, y + 20);
-        ctx.lineTo(x, y );
+        ctx.lineTo(x, y);
         ctx.lineTo(x + 15, y + 20);
         ctx.lineTo(x - 15, y + 20);
         ctx.stroke();

@@ -203,7 +203,7 @@ export const exportResultsToPDF = async (beamData, results) => {
     pdf.text('Beam Diagram', margin, yPosition);
     yPosition += 20;
 
-    const beamDiagramCaptured = await addCanvasToPDF('#beam-diagram-canvas', 'Beam Configuration');
+    await addCanvasToPDF('#beam-diagram-canvas', 'Beam Configuration');
 
     // Reaction Forces Section
     if (results.reactions.length > 0) {

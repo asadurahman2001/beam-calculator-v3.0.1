@@ -40,63 +40,69 @@ function App() {
   const [resolution, setResolution] = useState(100);
 
   useEffect(() => {
-    calculateResults();
-  }, [beamData, resolution]);
-
-  const calculateResults = () => {
-    try {
-      const reactions = calculateReactions(
-        beamData.supports,
-        beamData.pointLoads,
-        beamData.distributedLoads,
-        beamData.moments,
-        beamData.length
-      );
-
-      if (reactions && !reactions.error) {
-        const { x: xCoords, shear } = calculateShearForce(
-          reactions.supportReactions || [],
-          beamData.pointLoads,
-          beamData.distributedLoads,
-          beamData.length,
-          resolution
-        );
-
-        const { x: xCoordsMoment, moment } = calculateBendingMoment(
+    const calculateResults = () => {
+      try {
+        const reactions = calculateReactions(
           beamData.supports,
-          reactions.supportReactions || [],
-          reactions.supportMoments || [],
           beamData.pointLoads,
           beamData.distributedLoads,
           beamData.moments,
-          beamData.length,
-          resolution
+          beamData.length
         );
 
-        // Calculate deflection
-        const { unitWeightMoments } = calculateUnitLoadMoment(
-          beamData.supports,
-          beamData.length,
-          resolution
-        );
+        if (reactions && !reactions.error) {
+          const { x: xCoords, shear } = calculateShearForce(
+            reactions.supportReactions || [],
+            beamData.pointLoads,
+            beamData.distributedLoads,
+            beamData.length,
+            resolution
+          );
 
-        const EI = beamData.materialProperties.E * beamData.materialProperties.I;
-        const { deflections } = calculateDeflection(
-          xCoordsMoment,
-          moment,
-          unitWeightMoments,
-          beamData.length,
-          EI
-        );
+          const { x: xCoordsMoment, moment } = calculateBendingMoment(
+            beamData.supports,
+            reactions.supportReactions || [],
+            reactions.supportMoments || [],
+            beamData.pointLoads,
+            beamData.distributedLoads,
+            beamData.moments,
+            beamData.length,
+            resolution
+          );
 
-        setResults({
-          reactions: reactions.reactions || [],
-          shearForce: { x: xCoords, y: shear },
-          bendingMoment: { x: xCoordsMoment, y: moment },
-          deflection: { x: xCoordsMoment, y: deflections }
-        });
-      } else {
-        // Clear results if calculation failed
+          // Calculate deflection
+          const { unitWeightMoments } = calculateUnitLoadMoment(
+            beamData.supports,
+            beamData.length,
+            resolution
+          );
+
+          const EI = beamData.materialProperties.E * beamData.materialProperties.I;
+          const { deflections } = calculateDeflection(
+            xCoordsMoment,
+            moment,
+            unitWeightMoments,
+            beamData.length,
+            EI
+          );
+
+          setResults({
+            reactions: reactions.reactions || [],
+            shearForce: { x: xCoords, y: shear },
+            bendingMoment: { x: xCoordsMoment, y: moment },
+            deflection: { x: xCoordsMoment, y: deflections }
+          });
+        } else {
+          // Clear results if calculation failed
+          setResults({
+            reactions: [],
+            shearForce: { x: [], y: [] },
+            bendingMoment: { x: [], y: [] },
+            deflection: { x: [], y: [] }
+          });
+        }
+      } catch (error) {
+        console.error('Calculation error:', error);
         setResults({
           reactions: [],
           shearForce: { x: [], y: [] },
@@ -104,16 +110,10 @@ function App() {
           deflection: { x: [], y: [] }
         });
       }
-    } catch (error) {
-      console.error('Calculation error:', error);
-      setResults({
-        reactions: [],
-        shearForce: { x: [], y: [] },
-        bendingMoment: { x: [], y: [] },
-        deflection: { x: [], y: [] }
-      });
-    }
-  };
+    };
+
+    calculateResults();
+  }, [beamData, resolution]);
 
   const updateBeamData = (newData) => {
     setBeamData(prev => ({ ...prev, ...newData }));
