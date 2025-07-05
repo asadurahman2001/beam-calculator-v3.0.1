@@ -77,8 +77,12 @@ const BeamDiagram = ({ beamData, results }) => {
 
   const drawSupport = (ctx, x, y, type, position, beamLength) => {
     ctx.save();
-    ctx.strokeStyle = '#374151';
-    ctx.fillStyle = '#374151';
+    // Use theme-aware colors
+    const strokeColor = isDarkMode ? '#e5e7eb' : '#374151';
+    const fillColor = isDarkMode ? '#e5e7eb' : '#374151';
+    
+    ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = fillColor;
     ctx.lineWidth = 2;
 
     switch (type) {
