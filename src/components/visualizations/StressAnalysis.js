@@ -298,11 +298,11 @@ const StressAnalysis = ({ beamData, results }) => {
 
   // Cross-section stress distribution data
   const crossSectionBendingData = {
-    labels: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI').toFixed(3)),
+    labels: crossSectionDistribution.map(point => convertValue(point.bendingStress, 'stress', 'SI')),
     datasets: [
       {
         label: `Bending Stress (${getUnit('stress')})`,
-        data: crossSectionDistribution.map(point => convertValue(point.bendingStress, 'stress', 'SI')),
+        data: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI')),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139, 92, 246, 0.2)',
         fill: true,
@@ -313,11 +313,11 @@ const StressAnalysis = ({ beamData, results }) => {
   };
 
   const crossSectionShearData = {
-    labels: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI').toFixed(3)),
+    labels: crossSectionDistribution.map(point => convertValue(point.shearStress, 'stress', 'SI')),
     datasets: [
       {
         label: `Shear Stress (${getUnit('stress')})`,
-        data: crossSectionDistribution.map(point => convertValue(point.shearStress, 'stress', 'SI')),
+        data: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI')),
         borderColor: '#f59e0b',
         backgroundColor: 'rgba(245, 158, 11, 0.2)',
         fill: true,
@@ -384,74 +384,39 @@ const StressAnalysis = ({ beamData, results }) => {
         </div>
       </div>
 
-      {/* Bending Stress Diagram (BSD) - Fixed Axis */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bending Stress Diagram (BSD)</h3>
-        <div className="h-80">
-          {results.shearForce.x.length > 0 ? (
-            <Line 
-              key={`bsd-${chartKey}`}
-              data={bendingStressData} 
-              options={getChartOptions(`Bending Stress (${getUnit('stress')})`)} 
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-              <div className="text-center">
-                <svg className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                <p>No data to display</p>
-                <p className="text-sm">Configure beam parameters to see the bending stress diagram</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Shear Stress Diagram (SSD) - Fixed Axis */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Shear Stress Diagram (SSD)</h3>
-        <div className="h-80">
-          {results.shearForce.x.length > 0 ? (
-            <Line 
-              key={`ssd-${chartKey}`}
-              data={shearStressData} 
-              options={getChartOptions(`Shear Stress (${getUnit('stress')})`)} 
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-              <div className="text-center">
-                <svg className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                <p>No data to display</p>
-                <p className="text-sm">Configure beam parameters to see the shear stress diagram</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Cross-Section and Stress Distribution Layout */}
+      {/* Cross-Section and Stress Distribution Layout - Moved to Top */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Bending Stress Distribution across Cross-Section */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Bending Stress Distribution
           </h3>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center">
+            <span className="mr-2">Stress Direction:</span>
+            <svg width="60" height="20" viewBox="0 0 60 20" className="mr-2">
+              <defs>
+                <marker id="arrowhead-left" markerWidth="10" markerHeight="7" 
+                 refX="0" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+                </marker>
+              </defs>
+              <line x1="50" y1="10" x2="10" y2="10" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowhead-left)" />
+            </svg>
+            <span className="text-purple-600 dark:text-purple-400">Right to Left</span>
+          </div>
           <div className="h-96">
             <Line 
               key={`cross-bending-${chartKey}`}
               data={crossSectionBendingData} 
               options={{
-                ...getChartOptions(`Bending Stress (${getUnit('stress')})`),
+                ...getChartOptions(`Distance from Neutral Axis (${getUnit('length')})`),
                 scales: {
-                  y: {
+                  x: {
                     display: true,
-                    position: 'right',
+                    reverse: true, // Reverse x-axis for right to left direction
                     title: {
                       display: true,
-                      text: `Distance from Neutral Axis (${getUnit('length')})`,
+                      text: `Bending Stress (${getUnit('stress')}) ←`,
                       color: isDarkMode ? '#e5e7eb' : '#374151'
                     },
                     grid: {
@@ -462,11 +427,11 @@ const StressAnalysis = ({ beamData, results }) => {
                       color: isDarkMode ? '#d1d5db' : '#6b7280'
                     }
                   },
-                  x: {
+                  y: {
                     display: true,
                     title: {
                       display: true,
-                      text: `Bending Stress (${getUnit('stress')})`,
+                      text: `Distance from Neutral Axis (${getUnit('length')})`,
                       color: isDarkMode ? '#e5e7eb' : '#374151'
                     },
                     grid: {
@@ -607,18 +572,31 @@ const StressAnalysis = ({ beamData, results }) => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Shear Stress Distribution
           </h3>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center">
+            <span className="mr-2">Stress Direction:</span>
+            <svg width="60" height="20" viewBox="0 0 60 20" className="mr-2">
+              <defs>
+                <marker id="arrowhead-right" markerWidth="10" markerHeight="7" 
+                 refX="0" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+                </marker>
+              </defs>
+              <line x1="10" y1="10" x2="50" y2="10" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowhead-right)" />
+            </svg>
+            <span className="text-amber-600 dark:text-amber-400">Left to Right</span>
+          </div>
           <div className="h-96">
             <Line 
               key={`cross-shear-${chartKey}`}
               data={crossSectionShearData} 
               options={{
-                ...getChartOptions(`Shear Stress (${getUnit('stress')})`),
+                ...getChartOptions(`Distance from Neutral Axis (${getUnit('length')})`),
                 scales: {
                   x: {
                     display: true,
                     title: {
                       display: true,
-                      text: `Shear Stress (${getUnit('stress')})`,
+                      text: `→ Shear Stress (${getUnit('stress')})`,
                       color: isDarkMode ? '#e5e7eb' : '#374151'
                     },
                     grid: {
@@ -648,6 +626,54 @@ const StressAnalysis = ({ beamData, results }) => {
               }} 
             />
           </div>
+        </div>
+      </div>
+
+      {/* Bending Stress Diagram (BSD) - Fixed Axis */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bending Stress Diagram (BSD)</h3>
+        <div className="h-80">
+          {results.shearForce.x.length > 0 ? (
+            <Line 
+              key={`bsd-${chartKey}`}
+              data={bendingStressData} 
+              options={getChartOptions(`Bending Stress (${getUnit('stress')})`)} 
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+              <div className="text-center">
+                <svg className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p>No data to display</p>
+                <p className="text-sm">Configure beam parameters to see the bending stress diagram</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Shear Stress Diagram (SSD) - Fixed Axis */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Shear Stress Diagram (SSD)</h3>
+        <div className="h-80">
+          {results.shearForce.x.length > 0 ? (
+            <Line 
+              key={`ssd-${chartKey}`}
+              data={shearStressData} 
+              options={getChartOptions(`Shear Stress (${getUnit('stress')})`)} 
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+              <div className="text-center">
+                <svg className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <p>No data to display</p>
+                <p className="text-sm">Configure beam parameters to see the shear stress diagram</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
