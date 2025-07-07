@@ -351,8 +351,8 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                   )}
 
                   {/* Load description with components */}
-                  <div className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    {isInclined ? (
+                  {isInclined && (
+                    <div className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                       <div className="space-y-2">
                         <div className="flex items-center">
                           <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
@@ -379,15 +379,8 @@ const LoadsTab = ({ beamData, updateBeamData }) => {
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          Vertical Load: {Math.abs(displayMagnitude).toFixed(2)} {getUnit('force')} {load.magnitude >= 0 ? 'Upward' : 'Downward'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
