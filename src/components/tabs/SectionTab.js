@@ -7,56 +7,50 @@ const SectionTab = ({ beamData, updateBeamData }) => {
 
   const updateSectionProperty = (property, value) => {
     const siValue = convertValue(value, 'length', null, 'SI');
+    const newSection = {
+      ...beamData.section,
+      [property]: siValue
+    };
     updateBeamData({
-      section: {
-        ...beamData.section,
-        [property]: siValue
-      }
+      section: newSection
     });
+    setTimeout(() => calculateMomentOfInertiaForSection(newSection), 0);
   };
 
-  const calculateMomentOfInertia = () => {
-    const section = beamData.section || {};
+  // Helper to calculate moment of inertia for a given section object
+  const calculateMomentOfInertiaForSection = (section) => {
     let I = 0;
-
     switch (section.type || sectionType) {
       case 'rectangular':
-        const b = section.width || 0.3; // Default 300mm
-        const h = section.height || 0.5; // Default 500mm
+        const b = section.width || 0.3;
+        const h = section.height || 0.5;
         I = (b * Math.pow(h, 3)) / 12;
         break;
       case 'circular':
-        const d = section.diameter || 0.4; // Default 400mm
+        const d = section.diameter || 0.4;
         I = (Math.PI * Math.pow(d, 4)) / 64;
         break;
       case 'i-beam':
-        const bf = section.flangeWidth || 0.2; // Default 200mm
-        const tf = section.flangeThickness || 0.02; // Default 20mm
-        const hw = section.webHeight || 0.4; // Default 400mm
-        const tw = section.webThickness || 0.01; // Default 10mm
+        const bf = section.flangeWidth || 0.2;
+        const tf = section.flangeThickness || 0.02;
+        const hw = section.webHeight || 0.4;
+        const tw = section.webThickness || 0.01;
         const totalHeight = hw + 2 * tf;
-        
-        // I-beam moment of inertia calculation
         const Iflange = 2 * ((bf * Math.pow(tf, 3)) / 12 + bf * tf * Math.pow((totalHeight / 2 - tf / 2), 2));
         const Iweb = (tw * Math.pow(hw, 3)) / 12;
         I = Iflange + Iweb;
         break;
       case 't-beam':
-        const bfT = section.flangeWidth || 0.3; // Default 300mm
-        const tfT = section.flangeThickness || 0.05; // Default 50mm
-        const hwT = section.webHeight || 0.4; // Default 400mm
-        const twT = section.webThickness || 0.02; // Default 20mm
+        const bfT = section.flangeWidth || 0.3;
+        const tfT = section.flangeThickness || 0.05;
+        const hwT = section.webHeight || 0.4;
+        const twT = section.webThickness || 0.02;
         const totalHeightT = hwT + tfT;
-        
-        // T-beam moment of inertia calculation
-        // Calculate centroid first
-        const A1 = bfT * tfT; // Flange area
-        const A2 = twT * hwT; // Web area
-        const y1 = totalHeightT - tfT / 2; // Distance from bottom to flange centroid
-        const y2 = hwT / 2; // Distance from bottom to web centroid
-        const yBar = (A1 * y1 + A2 * y2) / (A1 + A2); // Centroid from bottom
-        
-        // Calculate moment of inertia about centroidal axis
+        const A1 = bfT * tfT;
+        const A2 = twT * hwT;
+        const y1 = totalHeightT - tfT / 2;
+        const y2 = hwT / 2;
+        const yBar = (A1 * y1 + A2 * y2) / (A1 + A2);
         const I1 = (bfT * Math.pow(tfT, 3)) / 12 + A1 * Math.pow(y1 - yBar, 2);
         const I2 = (twT * Math.pow(hwT, 3)) / 12 + A2 * Math.pow(y2 - yBar, 2);
         I = I1 + I2;
@@ -67,18 +61,21 @@ const SectionTab = ({ beamData, updateBeamData }) => {
       default:
         I = 1e-4;
     }
-
-    // Update the material properties with calculated I
     updateBeamData({
       materialProperties: {
         ...beamData.materialProperties,
         I: I
       },
-      section: {
-        ...beamData.section,
-        type: sectionType
-      }
+      section: section
     });
+  };
+
+  // Update moment of inertia when section type changes
+  const handleSectionTypeChange = (e) => {
+    setSectionType(e.target.value);
+    const newSection = { ...beamData.section, type: e.target.value };
+    updateBeamData({ section: newSection });
+    setTimeout(() => calculateMomentOfInertiaForSection(newSection), 0);
   };
 
   const sectionPresets = [
@@ -138,10 +135,11 @@ const SectionTab = ({ beamData, updateBeamData }) => {
     });
 
     // Recalculate moment of inertia
-    setTimeout(calculateMomentOfInertia, 100);
+    setTimeout(calculateMomentOfInertiaForSection, 100);
   };
 
   const section = beamData.section || {};
+  const currentSectionType = section.type || sectionType;
 
   return (
     <div className="space-y-6">
@@ -155,12 +153,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             </label>
             <select
               value={section.type || sectionType}
-              onChange={(e) => {
-                setSectionType(e.target.value);
-                updateBeamData({
-                  section: { ...section, type: e.target.value }
-                });
-              }}
+              onChange={handleSectionTypeChange}
               className="input-field"
             >
               <option value="rectangular">Rectangular</option>
@@ -349,45 +342,12 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                 value={convertValue(section.momentOfInertia || 1e-4, 'inertia', 'SI')}
                 onChange={(e) => {
                   const siValue = convertValue(parseFloat(e.target.value) || 0, 'inertia', null, 'SI');
-                  updateBeamData({
-                    materialProperties: {
-                      ...beamData.materialProperties,
-                      I: siValue
-                    },
-                    section: {
-                      ...section,
-                      momentOfInertia: siValue
-                    }
-                  });
+                  updateSectionProperty('momentOfInertia', siValue);
                 }}
                 className="input-field"
               />
             </div>
           )}
-
-          <button
-            onClick={calculateMomentOfInertia}
-            className="btn-primary w-full"
-          >
-            Calculate Moment of Inertia
-          </button>
-        </div>
-      </div>
-
-      {/* Section Presets */}
-      <div>
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Section Presets</h4>
-        <div className="grid grid-cols-1 gap-2">
-          {sectionPresets.map((preset) => (
-            <button
-              key={preset.name}
-              onClick={() => applyPreset(preset)}
-              className="p-3 text-left border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <div className="font-medium text-sm text-gray-900 dark:text-white">{preset.name}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{preset.description}</div>
-            </button>
-          ))}
         </div>
       </div>
 
@@ -405,17 +365,17 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             </h3>
             <div className="mt-1 text-sm text-green-700 dark:text-green-300">
               <div>Moment of Inertia (I) = {convertValue(beamData.materialProperties.I, 'inertia', 'SI').toExponential(3)} {getUnit('inertia')}</div>
-              {(section.type || sectionType) === 'rectangular' && (
+              {currentSectionType === 'rectangular' && (
                 <div className="mt-1">
                   Section: {convertValue(section.width || 0.3, 'length', 'SI').toFixed(0)} × {convertValue(section.height || 0.5, 'length', 'SI').toFixed(0)} {getUnit('length')}
                 </div>
               )}
-              {(section.type || sectionType) === 'circular' && (
+              {currentSectionType === 'circular' && (
                 <div className="mt-1">
                   Diameter: {convertValue(section.diameter || 0.4, 'length', 'SI').toFixed(0)} {getUnit('length')}
                 </div>
               )}
-              {(section.type || sectionType) === 't-beam' && (
+              {currentSectionType === 't-beam' && (
                 <div className="mt-1">
                   T-Beam: {convertValue(section.flangeWidth || 0.3, 'length', 'SI').toFixed(0)} × {convertValue(section.flangeThickness || 0.05, 'length', 'SI').toFixed(0)} flange, {convertValue(section.webThickness || 0.02, 'length', 'SI').toFixed(0)} × {convertValue(section.webHeight || 0.4, 'length', 'SI').toFixed(0)} web {getUnit('length')}
                 </div>
@@ -489,6 +449,23 @@ const SectionTab = ({ beamData, updateBeamData }) => {
               </g>
             )}
           </svg>
+        </div>
+      </div>
+
+      {/* Section Presets */}
+      <div>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Section Presets</h4>
+        <div className="grid grid-cols-1 gap-2">
+          {sectionPresets.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => applyPreset(preset)}
+              className="p-3 text-left border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div className="font-medium text-sm text-gray-900 dark:text-white">{preset.name}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{preset.description}</div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
