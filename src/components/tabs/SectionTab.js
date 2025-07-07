@@ -6,7 +6,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
   const { getUnit, convertValue } = useUnits();
 
   const updateSectionProperty = (property, value) => {
-    const siValue = convertValue(value, 'length', null, 'SI');
+    const siValue = convertValue(value, 'sectionLength', null, 'SI');
     const newSection = {
       ...beamData.section,
       [property]: siValue
@@ -169,26 +169,26 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Width ({getUnit('length')})
+                  Width ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.width || 0.3, 'length', 'SI')}
+                  value={convertValue(section.width || 0.3, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('width', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Height ({getUnit('length')})
+                  Height ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.height || 0.5, 'length', 'SI')}
+                  value={convertValue(section.height || 0.5, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('height', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -200,13 +200,13 @@ const SectionTab = ({ beamData, updateBeamData }) => {
           {(section.type || sectionType) === 'circular' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Diameter ({getUnit('length')})
+                Diameter ({getUnit('sectionLength')})
               </label>
               <input
                 type="number"
                 min="0.01"
                 step="0.01"
-                value={convertValue(section.diameter || 0.4, 'length', 'SI')}
+                value={convertValue(section.diameter || 0.4, 'sectionLength', 'SI')}
                 onChange={(e) => updateSectionProperty('diameter', parseFloat(e.target.value) || 0)}
                 className="input-field"
               />
@@ -218,52 +218,52 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Flange Width ({getUnit('length')})
+                  Flange Width ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.flangeWidth || 0.2, 'length', 'SI')}
+                  value={convertValue(section.flangeWidth || 0.2, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeWidth', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Flange Thickness ({getUnit('length')})
+                  Flange Thickness ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.flangeThickness || 0.02, 'length', 'SI')}
+                  value={convertValue(section.flangeThickness || 0.02, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Web Height ({getUnit('length')})
+                  Web Height ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.webHeight || 0.4, 'length', 'SI')}
+                  value={convertValue(section.webHeight || 0.4, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('webHeight', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Web Thickness ({getUnit('length')})
+                  Web Thickness ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.webThickness || 0.01, 'length', 'SI')}
+                  value={convertValue(section.webThickness || 0.01, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('webThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -276,52 +276,52 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Flange Width ({getUnit('length')})
+                  Flange Width ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.flangeWidth || 0.3, 'length', 'SI')}
+                  value={convertValue(section.flangeWidth || 0.3, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeWidth', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Flange Thickness ({getUnit('length')})
+                  Flange Thickness ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.flangeThickness || 0.05, 'length', 'SI')}
+                  value={convertValue(section.flangeThickness || 0.05, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('flangeThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Web Height ({getUnit('length')})
+                  Web Height ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.01"
                   step="0.01"
-                  value={convertValue(section.webHeight || 0.4, 'length', 'SI')}
+                  value={convertValue(section.webHeight || 0.4, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('webHeight', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Web Thickness ({getUnit('length')})
+                  Web Thickness ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
                   min="0.001"
                   step="0.001"
-                  value={convertValue(section.webThickness || 0.02, 'length', 'SI')}
+                  value={convertValue(section.webThickness || 0.02, 'sectionLength', 'SI')}
                   onChange={(e) => updateSectionProperty('webThickness', parseFloat(e.target.value) || 0)}
                   className="input-field"
                 />
@@ -367,17 +367,17 @@ const SectionTab = ({ beamData, updateBeamData }) => {
               <div>Moment of Inertia (I) = {convertValue(beamData.materialProperties.I, 'inertia', 'SI').toExponential(3)} {getUnit('inertia')}</div>
               {currentSectionType === 'rectangular' && (
                 <div className="mt-1">
-                  Section: {convertValue(section.width || 0.3, 'length', 'SI').toFixed(0)} × {convertValue(section.height || 0.5, 'length', 'SI').toFixed(0)} {getUnit('length')}
+                  Section: {convertValue(section.width || 0.3, 'sectionLength', 'SI').toFixed(0)} × {convertValue(section.height || 0.5, 'sectionLength', 'SI').toFixed(0)} {getUnit('sectionLength')}
                 </div>
               )}
               {currentSectionType === 'circular' && (
                 <div className="mt-1">
-                  Diameter: {convertValue(section.diameter || 0.4, 'length', 'SI').toFixed(0)} {getUnit('length')}
+                  Diameter: {convertValue(section.diameter || 0.4, 'sectionLength', 'SI').toFixed(0)} {getUnit('sectionLength')}
                 </div>
               )}
               {currentSectionType === 't-beam' && (
                 <div className="mt-1">
-                  T-Beam: {convertValue(section.flangeWidth || 0.3, 'length', 'SI').toFixed(0)} × {convertValue(section.flangeThickness || 0.05, 'length', 'SI').toFixed(0)} flange, {convertValue(section.webThickness || 0.02, 'length', 'SI').toFixed(0)} × {convertValue(section.webHeight || 0.4, 'length', 'SI').toFixed(0)} web {getUnit('length')}
+                  T-Beam: {convertValue(section.flangeWidth || 0.3, 'sectionLength', 'SI').toFixed(0)} × {convertValue(section.flangeThickness || 0.05, 'sectionLength', 'SI').toFixed(0)} flange, {convertValue(section.webThickness || 0.02, 'sectionLength', 'SI').toFixed(0)} × {convertValue(section.webHeight || 0.4, 'sectionLength', 'SI').toFixed(0)} web {getUnit('sectionLength')}
                 </div>
               )}
             </div>

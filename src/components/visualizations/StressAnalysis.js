@@ -159,19 +159,34 @@ const StressAnalysis = ({ beamData, results }) => {
     const sectionProps = calculateSectionProperties();
     const points = 50;
     const distribution = [];
+    const section = beamData.section || {};
 
     // Generate stress distribution across the height of the section
     for (let i = 0; i <= points; i++) {
       const y = (i / points) * (2 * sectionProps.maxDistanceFromCentroid) - sectionProps.maxDistanceFromCentroid;
       
-      // Bending stress varies linearly from neutral axis
-      const bendingStress = stressAtPos.moment * Math.abs(y) / sectionProps.momentOfInertia;
+      // Bending stress varies linearly from neutral axis: σ = M*y/I
+      const bendingStress = stressAtPos.moment * y / sectionProps.momentOfInertia;
       
-      // Shear stress varies parabolically for rectangular sections (simplified)
+      // Shear stress calculation: τ = V*Q/(I*b)
       let shearStress = 0;
-      if (beamData.section?.type === 'rectangular') {
-        const h = sectionProps.maxDistanceFromCentroid * 2;
-        shearStress = stressAtPos.shearForce * (1 - Math.pow(y / (h/2), 2)) * 1.5 / sectionProps.area;
+      if (section.type === 'rectangular' || !section.type) {
+        const h = section.height || 0.5; // Total height
+        const b = section.width || 0.3;  // Width
+        const I = sectionProps.momentOfInertia;
+        const V = stressAtPos.shearForce;
+        
+        // For rectangular section: Q = b * (h²/8 - y²) / 2
+        // But we need Q for the area above point y from neutral axis
+        const yFromTop = h/2 - y; // Distance from top of beam
+        const areaAbove = b * yFromTop; // Area above the point
+        const centroidOfAreaAbove = yFromTop / 2; // Centroid of area above from the point
+        const Q = areaAbove * (y + centroidOfAreaAbove); // First moment of area above
+        
+        // Shear stress: τ = VQ/(Ib)
+        if (Math.abs(y) < h/2) { // Only within the beam height
+          shearStress = Math.abs(V * Q / (I * b));
+        }
       } else {
         // Simplified for other sections - maximum at neutral axis
         shearStress = stressAtPos.shearForce * (1 - Math.abs(y) / sectionProps.maxDistanceFromCentroid) / sectionProps.area;
@@ -305,13 +320,13 @@ const StressAnalysis = ({ beamData, results }) => {
 
   // Cross-section stress distribution data
   const crossSectionBendingData = {
-    labels: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI')),
+    labels: crossSectionDistribution.map(point => convertValue(point.y, 'sectionLength', 'SI')),
     datasets: [
       {
         label: `Bending Stress (${getUnit('stress')})`,
         data: crossSectionDistribution.map(point => ({
           x: convertValue(point.bendingStress, 'stress', 'SI'),
-          y: convertValue(point.y, 'length', 'SI')
+          y: convertValue(point.y, 'sectionLength', 'SI')
         })),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139, 92, 246, 0.2)',
@@ -323,11 +338,14 @@ const StressAnalysis = ({ beamData, results }) => {
   };
 
   const crossSectionShearData = {
-    labels: crossSectionDistribution.map(point => convertValue(point.shearStress, 'stress', 'SI')),
+    labels: crossSectionDistribution.map(point => convertValue(point.y, 'sectionLength', 'SI')),
     datasets: [
       {
         label: `Shear Stress (${getUnit('stress')})`,
-        data: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI')),
+        data: crossSectionDistribution.map(point => ({
+          x: convertValue(point.shearStress, 'stress', 'SI'),
+          y: convertValue(point.y, 'sectionLength', 'SI')
+        })),
         borderColor: '#f59e0b',
         backgroundColor: 'rgba(245, 158, 11, 0.2)',
         fill: true,
@@ -381,7 +399,7 @@ const StressAnalysis = ({ beamData, results }) => {
                     position: 'right',
                     title: {
                       display: true,
-                      text: `Distance from Neutral Axis (${getUnit('length')})`,
+                      text: `Distance from Neutral Axis (${getUnit('sectionLength')})`,
                       color: isDarkMode ? '#e5e7eb' : '#374151'
                     },
                     grid: {
@@ -556,7 +574,7 @@ const StressAnalysis = ({ beamData, results }) => {
                     display: true,
                     title: {
                       display: true,
-                      text: `Distance from Neutral Axis (${getUnit('length')})`,
+                      text: `Distance from Neutral Axis (${getUnit('sectionLength')})`,
                       color: isDarkMode ? '#e5e7eb' : '#374151'
                     },
                     grid: {
@@ -688,7 +706,8 @@ const StressAnalysis = ({ beamData, results }) => {
               <li>• Maximum bending stress occurs at extreme fibers</li>
               <li>• Stress varies linearly across the section height</li>
               <li>• Zero stress at the neutral axis</li>
-              <li>• Formula: σ = M × c / I</li>
+              <li>• Formula: σ = M × y / I (where y is distance from neutral axis)</li>
+              <li>• For rectangular beam: I = b × h³ / 12</li>
             </ul>
           </div>
           <div>
@@ -697,7 +716,8 @@ const StressAnalysis = ({ beamData, results }) => {
               <li>• Maximum shear stress typically at neutral axis</li>
               <li>• Stress varies parabolically for rectangular sections</li>
               <li>• Zero stress at extreme fibers</li>
-              <li>• Formula: τ = V × Q / (I × t)</li>
+              <li>• Formula: τ = V × Q / (I × b)</li>
+              <li>• Q = first moment of area above the point</li>
             </ul>
           </div>
         </div>

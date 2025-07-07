@@ -22,7 +22,8 @@ export const UNIT_SYSTEMS = {
     deflection: { unit: 'mm', factor: 1000 },
     distributedLoad: { unit: 'kN/m', factor: 1 },
     area: { unit: 'm²', factor: 1 },
-    firstMoment: { unit: 'm³', factor: 1 }
+    firstMoment: { unit: 'm³', factor: 1 },
+    sectionLength: { unit: 'mm', factor: 1000 }
   },
   FPS: {
     name: 'FPS (Imperial)',
@@ -34,7 +35,8 @@ export const UNIT_SYSTEMS = {
     deflection: { unit: 'in', factor: 39.3701 },
     distributedLoad: { unit: 'kip/ft', factor: 0.0685218 },
     area: { unit: 'ft²', factor: 10.7639 },
-    firstMoment: { unit: 'ft³', factor: 35.3147 }
+    firstMoment: { unit: 'ft³', factor: 35.3147 },
+    sectionLength: { unit: 'in', factor: 39.3701 }
   }
 };
 
