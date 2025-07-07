@@ -7,79 +7,7 @@ const BeamDiagram = ({ beamData, results }) => {
   const { convertValue, getUnit } = useUnits();
   const { isDarkMode } = useTheme();
 
-  const drawBeam = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    const { width, height } = canvas;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Set up coordinate system
-    const margin = 80;
-    const beamY = height / 2;
-    const beamHeight = 20;
-    const displayLength = convertValue(beamData.length, 'length', 'SI');
-    const scale = (width - 2 * margin) / displayLength;
-
-    // Draw beam
-    ctx.fillStyle = '#3b82f6';
-    ctx.fillRect(margin, beamY - beamHeight/2, displayLength * scale, beamHeight);
-    
-    // Draw beam outline
-    ctx.strokeStyle = '#1e40af';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(margin, beamY - beamHeight/2, displayLength * scale, beamHeight);
-
-    // Draw supports
-    beamData.supports.forEach(support => {
-      const displayPos = convertValue(support.position, 'length', 'SI');
-      const x = margin + displayPos * scale;
-      drawSupport(ctx, x, beamY + beamHeight/2, support.type, support.position, beamData.length);
-    });
-
-    // Draw point loads
-    beamData.pointLoads.forEach(load => {
-      const displayPos = convertValue(load.position, 'length', 'SI');
-      const x = margin + displayPos * scale;
-      const displayLoad = {
-        magnitude: convertValue(load.magnitude, 'force', 'SI'),
-        angle: load.angle || 0,
-        isInclined: load.isInclined || false
-      };
-      drawPointLoad(ctx, x, beamY - beamHeight/2, displayLoad);
-    });
-
-    // Draw distributed loads
-    beamData.distributedLoads.forEach(load => {
-      const displayStartPos = convertValue(load.startPos, 'length', 'SI');
-      const displayEndPos = convertValue(load.endPos, 'length', 'SI');
-      const displayStartMag = convertValue(load.startMag, 'distributedLoad', 'SI');
-      const displayEndMag = convertValue(load.endMag, 'distributedLoad', 'SI');
-      const startX = margin + displayStartPos * scale;
-      const endX = margin + displayEndPos * scale;
-      drawDistributedLoad(ctx, startX, endX, beamY - beamHeight/2, displayStartMag, displayEndMag);
-    });
-
-    // Draw moments
-    beamData.moments.forEach(moment => {
-      const displayPos = convertValue(moment.position, 'length', 'SI');
-      const displayMag = convertValue(moment.magnitude, 'moment', 'SI');
-      const x = margin + displayPos * scale;
-      drawMoment(ctx, x, beamY, displayMag);
-    });
-
-    // Draw dimensions
-    drawDimensions(ctx, margin, beamY + 60, displayLength * scale, beamData);
-  }, [beamData, results, isDarkMode, convertValue, getUnit]);
-
-  useEffect(() => {
-    drawBeam();
-  }, [drawBeam]);
-
-  const drawSupport = (ctx, x, y, type, position, beamLength) => {
+  const drawSupport = useCallback((ctx, x, y, type, position, beamLength) => {
     ctx.save();
     // Use theme-aware colors
     const strokeColor = isDarkMode ? '#e5e7eb' : '#374151';
@@ -198,9 +126,9 @@ const BeamDiagram = ({ beamData, results }) => {
         break;
     }
     ctx.restore();
-  };
+  }, [isDarkMode]);
 
-  const drawPointLoad = (ctx, x, y, load) => {
+  const drawPointLoad = useCallback((ctx, x, y, load) => {
     const magnitude = load.magnitude || load;
     const angle = load.angle || 0;
     const isInclined = load.isInclined || false;
@@ -279,9 +207,9 @@ const BeamDiagram = ({ beamData, results }) => {
     }
 
     ctx.restore();
-  };
+  }, [isDarkMode, getUnit]);
 
-  const drawDistributedLoad = (ctx, startX, endX, y, startMag, endMag) => {
+  const drawDistributedLoad = useCallback((ctx, startX, endX, y, startMag, endMag) => {
     if (startMag === 0 && endMag === 0) return;
 
     ctx.save();
@@ -353,9 +281,9 @@ const BeamDiagram = ({ beamData, results }) => {
     }
 
     ctx.restore();
-  };
+  }, [isDarkMode, getUnit]);
 
-  const drawMoment = (ctx, x, y, magnitude) => {
+  const drawMoment = useCallback((ctx, x, y, magnitude) => {
     if (magnitude === 0) return;
 
     ctx.save();
@@ -396,9 +324,9 @@ const BeamDiagram = ({ beamData, results }) => {
     ctx.fillText(`${Math.abs(magnitude).toFixed(1)} ${getUnit('moment')}`, x, y - 35);
 
     ctx.restore();
-  };
+  }, [isDarkMode, getUnit]);
 
-  const drawDimensions = (ctx, startX, y, totalWidth, beamData) => {
+  const drawDimensions = useCallback((ctx, startX, y, totalWidth, beamData) => {
     ctx.save();
     // Use theme-aware colors for better visibility
     const dimensionColor = isDarkMode ? '#d1d5db' : '#374151';
@@ -451,7 +379,79 @@ const BeamDiagram = ({ beamData, results }) => {
     }
 
     ctx.restore();
-  };
+  }, [isDarkMode, convertValue, getUnit]);
+
+  const drawBeam = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const { width, height } = canvas;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+    
+    // Set up coordinate system
+    const margin = 80;
+    const beamY = height / 2;
+    const beamHeight = 20;
+    const displayLength = convertValue(beamData.length, 'length', 'SI');
+    const scale = (width - 2 * margin) / displayLength;
+
+    // Draw beam
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(margin, beamY - beamHeight/2, displayLength * scale, beamHeight);
+    
+    // Draw beam outline
+    ctx.strokeStyle = '#1e40af';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(margin, beamY - beamHeight/2, displayLength * scale, beamHeight);
+
+    // Draw supports
+    beamData.supports.forEach(support => {
+      const displayPos = convertValue(support.position, 'length', 'SI');
+      const x = margin + displayPos * scale;
+      drawSupport(ctx, x, beamY + beamHeight/2, support.type, support.position, beamData.length);
+    });
+
+    // Draw point loads
+    beamData.pointLoads.forEach(load => {
+      const displayPos = convertValue(load.position, 'length', 'SI');
+      const x = margin + displayPos * scale;
+      const displayLoad = {
+        magnitude: convertValue(load.magnitude, 'force', 'SI'),
+        angle: load.angle || 0,
+        isInclined: load.isInclined || false
+      };
+      drawPointLoad(ctx, x, beamY - beamHeight/2, displayLoad);
+    });
+
+    // Draw distributed loads
+    beamData.distributedLoads.forEach(load => {
+      const displayStartPos = convertValue(load.startPos, 'length', 'SI');
+      const displayEndPos = convertValue(load.endPos, 'length', 'SI');
+      const displayStartMag = convertValue(load.startMag, 'distributedLoad', 'SI');
+      const displayEndMag = convertValue(load.endMag, 'distributedLoad', 'SI');
+      const startX = margin + displayStartPos * scale;
+      const endX = margin + displayEndPos * scale;
+      drawDistributedLoad(ctx, startX, endX, beamY - beamHeight/2, displayStartMag, displayEndMag);
+    });
+
+    // Draw moments
+    beamData.moments.forEach(moment => {
+      const displayPos = convertValue(moment.position, 'length', 'SI');
+      const displayMag = convertValue(moment.magnitude, 'moment', 'SI');
+      const x = margin + displayPos * scale;
+      drawMoment(ctx, x, beamY, displayMag);
+    });
+
+    // Draw dimensions
+    drawDimensions(ctx, margin, beamY + 60, displayLength * scale, beamData);
+  }, [beamData, results, isDarkMode, convertValue, getUnit, drawSupport, drawPointLoad, drawDistributedLoad, drawMoment, drawDimensions]);
+
+  useEffect(() => {
+    drawBeam();
+  }, [drawBeam]);
 
   return (
     <div className="space-y-6">
