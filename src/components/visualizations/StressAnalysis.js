@@ -434,6 +434,55 @@ const StressAnalysis = ({ beamData, results }) => {
 
       {/* Cross-Section and Stress Distribution Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Bending Stress Distribution across Cross-Section */}
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Bending Stress Distribution
+          </h3>
+          <div className="h-96">
+            <Line 
+              key={`cross-bending-${chartKey}`}
+              data={crossSectionBendingData} 
+              options={{
+                ...getChartOptions(`Bending Stress (${getUnit('stress')})`),
+                scales: {
+                  y: {
+                    display: true,
+                    position: 'right',
+                    title: {
+                      display: true,
+                      text: `Distance from Neutral Axis (${getUnit('length')})`,
+                      color: isDarkMode ? '#e5e7eb' : '#374151'
+                    },
+                    grid: {
+                      display: true,
+                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                    }
+                  },
+                  x: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: `Bending Stress (${getUnit('stress')})`,
+                      color: isDarkMode ? '#e5e7eb' : '#374151'
+                    },
+                    grid: {
+                      display: true,
+                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                    }
+                  }
+                }
+              }} 
+            />
+          </div>
+        </div>
+
         {/* Cross-Section Visualization */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -550,54 +599,6 @@ const StressAnalysis = ({ beamData, results }) => {
                 V = {convertValue(stressAtAnalysisPoint.shearForce, 'force', 'SI').toFixed(2)} {getUnit('force')}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Bending Stress Distribution across Cross-Section */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Bending Stress Distribution
-          </h3>
-          <div className="h-96">
-            <Line 
-              key={`cross-bending-${chartKey}`}
-              data={crossSectionBendingData} 
-              options={{
-                ...getChartOptions(`Bending Stress (${getUnit('stress')})`),
-                scales: {
-                  x: {
-                    display: true,
-                    title: {
-                      display: true,
-                      text: `Bending Stress (${getUnit('stress')})`,
-                      color: isDarkMode ? '#e5e7eb' : '#374151'
-                    },
-                    grid: {
-                      display: true,
-                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                    },
-                    ticks: {
-                      color: isDarkMode ? '#d1d5db' : '#6b7280'
-                    }
-                  },
-                  y: {
-                    display: true,
-                    title: {
-                      display: true,
-                      text: `Distance from Neutral Axis (${getUnit('length')})`,
-                      color: isDarkMode ? '#e5e7eb' : '#374151'
-                    },
-                    grid: {
-                      display: true,
-                      color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                    },
-                    ticks: {
-                      color: isDarkMode ? '#d1d5db' : '#6b7280'
-                    }
-                  }
-                }
-              }} 
-            />
           </div>
         </div>
 
