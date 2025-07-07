@@ -3,6 +3,7 @@ import { useUnits } from '../../contexts/UnitContext';
 
 const SectionTab = ({ beamData, updateBeamData }) => {
   const [sectionType, setSectionType] = useState('rectangular');
+  const [analysisPosition, setAnalysisPosition] = useState(beamData.length / 2);
   const { getUnit, convertValue } = useUnits();
 
   const updateSectionProperty = (property, value) => {
@@ -15,6 +16,15 @@ const SectionTab = ({ beamData, updateBeamData }) => {
       section: newSection
     });
     setTimeout(() => calculateMomentOfInertiaForSection(newSection), 0);
+  };
+
+  const updateStressAnalysisSettings = (settings) => {
+    updateBeamData({
+      stressAnalysis: {
+        ...beamData.stressAnalysis,
+        ...settings
+      }
+    });
   };
 
   // Helper to calculate moment of inertia for a given section object
@@ -68,6 +78,79 @@ const SectionTab = ({ beamData, updateBeamData }) => {
       },
       section: section
     });
+  };
+
+  // Calculate section properties for stress analysis
+  const calculateSectionProperties = () => {
+    const section = beamData.section || {};
+    let properties = {
+      area: 0,
+      momentOfInertia: beamData.materialProperties.I,
+      centroidHeight: 0,
+      maxDistanceFromCentroid: 0,
+      thickness: 0,
+      firstMomentOfArea: 0
+    };
+
+    switch (section.type || sectionType) {
+      case 'rectangular':
+        const b = section.width || 0.3;
+        const h = section.height || 0.5;
+        properties.area = b * h;
+        properties.centroidHeight = h / 2; // Neutral axis at h/2
+        properties.maxDistanceFromCentroid = h / 2;
+        properties.thickness = b;
+        properties.firstMomentOfArea = (b * h * h) / 8; // Q for rectangular section
+        break;
+      case 'circular':
+        const d = section.diameter || 0.4;
+        const r = d / 2;
+        properties.area = Math.PI * r * r;
+        properties.centroidHeight = r;
+        properties.maxDistanceFromCentroid = r;
+        properties.thickness = d;
+        properties.firstMomentOfArea = (2 * r * r * r) / 3;
+        break;
+      case 'i-beam':
+        const bf = section.flangeWidth || 0.2;
+        const tf = section.flangeThickness || 0.02;
+        const hw = section.webHeight || 0.4;
+        const tw = section.webThickness || 0.01;
+        const totalHeight = hw + 2 * tf;
+        properties.area = 2 * bf * tf + tw * hw;
+        properties.centroidHeight = totalHeight / 2;
+        properties.maxDistanceFromCentroid = totalHeight / 2;
+        properties.thickness = tw;
+        properties.firstMomentOfArea = bf * tf * (totalHeight / 2 - tf / 2);
+        break;
+      case 't-beam':
+        const bfT = section.flangeWidth || 0.3;
+        const tfT = section.flangeThickness || 0.05;
+        const hwT = section.webHeight || 0.4;
+        const twT = section.webThickness || 0.02;
+        const totalHeightT = hwT + tfT;
+        
+        const A1 = bfT * tfT;
+        const A2 = twT * hwT;
+        const y1 = totalHeightT - tfT / 2;
+        const y2 = hwT / 2;
+        const yBar = (A1 * y1 + A2 * y2) / (A1 + A2);
+        
+        properties.area = A1 + A2;
+        properties.centroidHeight = yBar;
+        properties.maxDistanceFromCentroid = Math.max(yBar, totalHeightT - yBar);
+        properties.thickness = twT;
+        properties.firstMomentOfArea = A1 * Math.abs(y1 - yBar);
+        break;
+      default:
+        properties.area = 0.15;
+        properties.centroidHeight = 0.25;
+        properties.maxDistanceFromCentroid = 0.25;
+        properties.thickness = 0.3;
+        properties.firstMomentOfArea = 0.01;
+    }
+
+    return properties;
   };
 
   // Update moment of inertia when section type changes
@@ -135,11 +218,13 @@ const SectionTab = ({ beamData, updateBeamData }) => {
     });
 
     // Recalculate moment of inertia
-    setTimeout(calculateMomentOfInertiaForSection, 100);
+    setTimeout(() => calculateMomentOfInertiaForSection(newSection), 100);
   };
 
   const section = beamData.section || {};
   const currentSectionType = section.type || sectionType;
+  const sectionProperties = calculateSectionProperties();
+  const displayAnalysisPosition = convertValue(analysisPosition, 'length', 'SI');
 
   return (
     <div className="space-y-6">
@@ -169,7 +254,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Width ({getUnit('sectionLength')})
+                  Width (b) ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
@@ -182,7 +267,7 @@ const SectionTab = ({ beamData, updateBeamData }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Height ({getUnit('sectionLength')})
+                  Height (h) ({getUnit('sectionLength')})
                 </label>
                 <input
                   type="number"
@@ -351,6 +436,135 @@ const SectionTab = ({ beamData, updateBeamData }) => {
         </div>
       </div>
 
+      {/* Stress Analysis Settings */}
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">Stress Analysis Settings</h3>
+        
+        <div className="space-y-4">
+          {/* Analysis Position Control */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Analysis Position: {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
+            </label>
+            <div className="space-y-2">
+              <input
+                type="range"
+                min="0"
+                max={convertValue(beamData.length, 'length', 'SI')}
+                step="0.1"
+                value={displayAnalysisPosition}
+                onChange={(e) => setAnalysisPosition(convertValue(parseFloat(e.target.value), 'length', null, 'SI'))}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+              />
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>0</span>
+                <span>{convertValue(beamData.length, 'length', 'SI').toFixed(1)} {getUnit('length')}</span>
+              </div>
+              <input
+                type="number"
+                min="0"
+                max={convertValue(beamData.length, 'length', 'SI')}
+                step="0.1"
+                value={displayAnalysisPosition}
+                onChange={(e) => setAnalysisPosition(convertValue(parseFloat(e.target.value) || 0, 'length', null, 'SI'))}
+                className="input-field w-32"
+              />
+            </div>
+          </div>
+
+          {/* Stress Analysis Options */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Stress Components to Analyze
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={beamData.stressAnalysis?.showBendingStress !== false}
+                  onChange={(e) => updateStressAnalysisSettings({ showBendingStress: e.target.checked })}
+                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Bending Stress (σ = M×y/I)</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={beamData.stressAnalysis?.showShearStress !== false}
+                  onChange={(e) => updateStressAnalysisSettings({ showShearStress: e.target.checked })}
+                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Shear Stress (τ = V×Q/(I×b))</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={beamData.stressAnalysis?.showStressDistribution !== false}
+                  onChange={(e) => updateStressAnalysisSettings({ showStressDistribution: e.target.checked })}
+                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Cross-Section Stress Distribution</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Display Settings */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Display Settings
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={beamData.stressAnalysis?.showStressDiagrams !== false}
+                  onChange={(e) => updateStressAnalysisSettings({ showStressDiagrams: e.target.checked })}
+                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Show Stress Diagrams (SSD & BSD)</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={beamData.stressAnalysis?.showStressValues !== false}
+                  onChange={(e) => updateStressAnalysisSettings({ showStressValues: e.target.checked })}
+                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-gray-700 dark:text-gray-300">Show Stress Values on Diagrams</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Properties Summary */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
+              Section Properties for Stress Analysis
+            </h3>
+            <div className="mt-2 text-sm text-blue-700 dark:text-blue-300 space-y-1">
+              <div>Cross-sectional Area (A) = {convertValue(sectionProperties.area, 'area', 'SI').toFixed(4)} {getUnit('area')}</div>
+              <div>Moment of Inertia (I) = {convertValue(sectionProperties.momentOfInertia, 'inertia', 'SI').toExponential(3)} {getUnit('inertia')}</div>
+              <div>Neutral Axis Height = {convertValue(sectionProperties.centroidHeight, 'sectionLength', 'SI').toFixed(3)} {getUnit('sectionLength')}</div>
+              <div>Distance to extreme fiber (c) = {convertValue(sectionProperties.maxDistanceFromCentroid, 'sectionLength', 'SI').toFixed(3)} {getUnit('sectionLength')}</div>
+              <div>First Moment of Area (Q) = {convertValue(sectionProperties.firstMomentOfArea, 'firstMoment', 'SI').toExponential(3)} {getUnit('firstMoment')}</div>
+              {currentSectionType === 'rectangular' && (
+                <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                  For rectangular beam: I = b×h³/12, Neutral axis at h/2 = {convertValue((section.height || 0.5)/2, 'sectionLength', 'SI').toFixed(1)} {getUnit('sectionLength')}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Calculated Properties */}
       <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
         <div className="flex items-start">
@@ -385,54 +599,150 @@ const SectionTab = ({ beamData, updateBeamData }) => {
         </div>
       </div>
 
+      {/* Stress Formulas */}
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              Stress Calculation Formulas
+            </h3>
+            <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+              <div><strong>Bending Stress:</strong> σ = M × y / I</div>
+              <div><strong>Maximum Bending Stress:</strong> σ_max = M × c / I</div>
+              <div><strong>Shear Stress:</strong> τ = V × Q / (I × b)</div>
+              <div className="text-xs mt-2 text-yellow-600 dark:text-yellow-400">
+                Where: M = Bending Moment, V = Shear Force, y = Distance from neutral axis,<br/>
+                c = Distance to extreme fiber, Q = First moment of area, b = Width at point
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Section Visualization */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Section Preview</h4>
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Section Preview with Neutral Axis</h4>
         <div className="flex justify-center">
           <svg width="200" height="150" viewBox="0 0 200 150" className="border border-gray-300 dark:border-gray-600 rounded">
             {(section.type || sectionType) === 'rectangular' && (
-              <rect
-                x="50"
-                y="25"
-                width="100"
-                height="100"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="text-blue-600 dark:text-blue-400"
-              />
+              <>
+                <rect
+                  x="50"
+                  y="25"
+                  width="100"
+                  height="100"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="text-blue-600 dark:text-blue-400"
+                />
+                {/* Neutral axis at h/2 */}
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="170"
+                  y2="75"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  className="text-red-500"
+                />
+                <text x="175" y="80" fontSize="10" fill="currentColor" className="text-red-600 dark:text-red-400">
+                  N.A. (h/2)
+                </text>
+                {/* Dimension labels */}
+                <text x="100" y="20" fontSize="10" textAnchor="middle" fill="currentColor" className="text-gray-600 dark:text-gray-400">
+                  b = {convertValue(section.width || 0.3, 'sectionLength', 'SI').toFixed(0)} {getUnit('sectionLength')}
+                </text>
+                <text x="25" y="80" fontSize="10" textAnchor="middle" fill="currentColor" className="text-gray-600 dark:text-gray-400" transform="rotate(-90, 25, 80)">
+                  h = {convertValue(section.height || 0.5, 'sectionLength', 'SI').toFixed(0)} {getUnit('sectionLength')}
+                </text>
+              </>
             )}
             {(section.type || sectionType) === 'circular' && (
-              <circle
-                cx="100"
-                cy="75"
-                r="50"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="text-blue-600 dark:text-blue-400"
-              />
+              <>
+                <circle
+                  cx="100"
+                  cy="75"
+                  r="50"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="text-blue-600 dark:text-blue-400"
+                />
+                {/* Neutral axis */}
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="170"
+                  y2="75"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  className="text-red-500"
+                />
+                <text x="175" y="80" fontSize="10" fill="currentColor" className="text-red-600 dark:text-red-400">
+                  N.A.
+                </text>
+              </>
             )}
             {(section.type || sectionType) === 'i-beam' && (
-              <g className="text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
-                {/* Top flange */}
-                <rect x="40" y="25" width="120" height="20" />
-                {/* Web */}
-                <rect x="90" y="45" width="20" height="60" />
-                {/* Bottom flange */}
-                <rect x="40" y="105" width="120" height="20" />
-              </g>
+              <>
+                <g className="text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
+                  {/* Top flange */}
+                  <rect x="40" y="25" width="120" height="20" />
+                  {/* Web */}
+                  <rect x="90" y="45" width="20" height="60" />
+                  {/* Bottom flange */}
+                  <rect x="40" y="105" width="120" height="20" />
+                </g>
+                {/* Neutral axis */}
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="170"
+                  y2="75"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  className="text-red-500"
+                />
+                <text x="175" y="80" fontSize="10" fill="currentColor" className="text-red-600 dark:text-red-400">
+                  N.A.
+                </text>
+              </>
             )}
             {(section.type || sectionType) === 't-beam' && (
-              <g className="text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
-                {/* Top flange */}
-                <rect x="40" y="25" width="120" height="25" />
-                {/* Web */}
-                <rect x="90" y="50" width="20" height="75" />
-              </g>
+              <>
+                <g className="text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
+                  {/* Top flange */}
+                  <rect x="40" y="25" width="120" height="25" />
+                  {/* Web */}
+                  <rect x="90" y="50" width="20" height="75" />
+                </g>
+                {/* Neutral axis */}
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="170"
+                  y2="75"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  className="text-red-500"
+                />
+                <text x="175" y="80" fontSize="10" fill="currentColor" className="text-red-600 dark:text-red-400">
+                  N.A.
+                </text>
+              </>
             )}
             {(section.type || sectionType) === 'custom' && (
-              <g className="text-blue-600 dark:text-blue-400">
+              <>
                 <rect
                   x="50"
                   y="25"
@@ -442,11 +752,26 @@ const SectionTab = ({ beamData, updateBeamData }) => {
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeDasharray="5,5"
+                  className="text-blue-600 dark:text-blue-400"
                 />
                 <text x="100" y="80" textAnchor="middle" className="text-xs fill-current">
                   Custom
                 </text>
-              </g>
+                {/* Neutral axis */}
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="170"
+                  y2="75"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  className="text-red-500"
+                />
+                <text x="175" y="80" fontSize="10" fill="currentColor" className="text-red-600 dark:text-red-400">
+                  N.A.
+                </text>
+              </>
             )}
           </svg>
         </div>

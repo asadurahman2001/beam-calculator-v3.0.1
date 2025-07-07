@@ -5,7 +5,6 @@ import LoadsTab from './tabs/LoadsTab';
 import MomentsTab from './tabs/MomentsTab';
 import MaterialTab from './tabs/MaterialTab';
 import SectionTab from './tabs/SectionTab';
-import StressTab from './tabs/StressTab';
 
 const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => {
   const [activeTab, setActiveTab] = useState('length');
@@ -17,9 +16,8 @@ const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => 
     { id: 'supports', label: 'Supports', icon: '🏗️' },
     { id: 'loads', label: 'Loads', icon: '⬇️' },
     { id: 'moments', label: 'Moments', icon: '🔄' },
-    { id: 'section', label: 'Section', icon: '⬜' },
+    { id: 'section', label: 'Section & Stress', icon: '⬜' },
     { id: 'material', label: 'Material', icon: '🧱' },
-    { id: 'stress', label: 'Stress', icon: '📐' }
   ];
 
   const sections = [
@@ -27,9 +25,8 @@ const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => 
     { id: 'supports', label: 'Supports', icon: '🏗️', component: SupportsTab },
     { id: 'loads', label: 'Loads', icon: '⬇️', component: LoadsTab },
     { id: 'moments', label: 'Moments', icon: '🔄', component: MomentsTab },
-    { id: 'section', label: 'Cross-Section', icon: '⬜', component: SectionTab },
+    { id: 'section', label: 'Cross-Section & Stress', icon: '⬜', component: SectionTab },
     { id: 'material', label: 'Material Properties', icon: '🧱', component: MaterialTab },
-    { id: 'stress', label: 'Stress Analysis', icon: '📐', component: StressTab }
   ];
 
   const toggleSection = (sectionId) => {
@@ -56,8 +53,6 @@ const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => 
         return <SectionTab beamData={beamData} updateBeamData={updateBeamData} />;
       case 'material':
         return <MaterialTab beamData={beamData} updateBeamData={updateBeamData} resolution={resolution} setResolution={setResolution} />;
-      case 'stress':
-        return <StressTab beamData={beamData} updateBeamData={updateBeamData} />;
       default:
         return null;
     }
@@ -89,8 +84,6 @@ const InputPanel = ({ beamData, updateBeamData, resolution, setResolution }) => 
       case 'material':
         return (beamData.materialProperties.E > 0 && beamData.materialProperties.I > 0) 
           ? 'bg-green-500' : 'bg-yellow-500';
-      case 'stress':
-        return 'bg-blue-500'; // Always available
       default:
         return 'bg-gray-300 dark:bg-gray-600';
     }
