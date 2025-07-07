@@ -228,9 +228,10 @@ const StressAnalysis = ({ beamData, results }) => {
     scales: {
       x: {
         display: true,
+        reverse: true,
         title: {
           display: true,
-          text: `Position along beam (${getUnit('length')})`,
+          text: `Bending Stress (${getUnit('stress')})`,
           color: isDarkMode ? '#e5e7eb' : '#374151'
         },
         grid: {
@@ -238,7 +239,10 @@ const StressAnalysis = ({ beamData, results }) => {
           color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
         },
         ticks: {
-          color: isDarkMode ? '#d1d5db' : '#6b7280'
+          color: isDarkMode ? '#d1d5db' : '#6b7280',
+          callback: function(value) {
+            return Number(value).toFixed(2);
+          }
         }
       },
       y: {
@@ -253,7 +257,10 @@ const StressAnalysis = ({ beamData, results }) => {
           color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
         },
         ticks: {
-          color: isDarkMode ? '#d1d5db' : '#6b7280'
+          color: isDarkMode ? '#d1d5db' : '#6b7280',
+          callback: function(value) {
+            return Number(value).toFixed(2);
+          }
         }
       }
     },
@@ -298,11 +305,14 @@ const StressAnalysis = ({ beamData, results }) => {
 
   // Cross-section stress distribution data
   const crossSectionBendingData = {
-    labels: crossSectionDistribution.map(point => convertValue(point.bendingStress, 'stress', 'SI')),
+    labels: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI')),
     datasets: [
       {
         label: `Bending Stress (${getUnit('stress')})`,
-        data: crossSectionDistribution.map(point => convertValue(point.y, 'length', 'SI')),
+        data: crossSectionDistribution.map(point => ({
+          x: convertValue(point.bendingStress, 'stress', 'SI'),
+          y: convertValue(point.y, 'length', 'SI')
+        })),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139, 92, 246, 0.2)',
         fill: true,
@@ -331,59 +341,6 @@ const StressAnalysis = ({ beamData, results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Analysis Position Control */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Stress Analysis Position</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Analysis Position: {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
-            </label>
-            <input
-              type="range"
-              min="0"
-              max={convertValue(beamData.length, 'length', 'SI')}
-              step="0.1"
-              value={displayAnalysisPosition}
-              onChange={(e) => setAnalysisPosition(convertValue(parseFloat(e.target.value), 'length', null, 'SI'))}
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <span>0</span>
-              <span>{convertValue(beamData.length, 'length', 'SI').toFixed(1)} {getUnit('length')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stress Values at Analysis Point */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
-          <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">Maximum Bending Stress</h4>
-          <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-            {convertValue(stressAtAnalysisPoint.bendingStress, 'stress', 'SI').toFixed(2)} {getUnit('stress')}
-          </div>
-          <div className="text-sm text-purple-600 dark:text-purple-400">
-            at position {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
-          </div>
-          <div className="text-xs text-purple-500 dark:text-purple-400 mt-1">
-            Moment: {convertValue(stressAtAnalysisPoint.moment, 'moment', 'SI').toFixed(2)} {getUnit('moment')}
-          </div>
-        </div>
-        <div className="card bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
-          <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Maximum Shear Stress</h4>
-          <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-            {convertValue(stressAtAnalysisPoint.shearStress, 'stress', 'SI').toFixed(2)} {getUnit('stress')}
-          </div>
-          <div className="text-sm text-amber-600 dark:text-amber-400">
-            at position {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
-          </div>
-          <div className="text-xs text-amber-500 dark:text-amber-400 mt-1">
-            Shear Force: {convertValue(stressAtAnalysisPoint.shearForce, 'force', 'SI').toFixed(2)} {getUnit('force')}
-          </div>
-        </div>
-      </div>
-
       {/* Cross-Section and Stress Distribution Layout - Moved to Top */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Bending Stress Distribution across Cross-Section */}
@@ -391,18 +348,7 @@ const StressAnalysis = ({ beamData, results }) => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Bending Stress Distribution
           </h3>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center">
-            <span className="mr-2">Stress Direction:</span>
-            <svg width="60" height="20" viewBox="0 0 60 20" className="mr-2">
-              <defs>
-                <marker id="arrowhead-left" markerWidth="10" markerHeight="7" 
-                 refX="0" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
-                </marker>
-              </defs>
-              <line x1="50" y1="10" x2="10" y2="10" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowhead-left)" />
-            </svg>
-            <span className="text-purple-600 dark:text-purple-400">Right to Left</span>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex flex-col items-center">
           </div>
           <div className="h-96">
             <Line 
@@ -413,10 +359,10 @@ const StressAnalysis = ({ beamData, results }) => {
                 scales: {
                   x: {
                     display: true,
-                    reverse: true, // Reverse x-axis for right to left direction
+                    reverse: true,
                     title: {
                       display: true,
-                      text: `Bending Stress (${getUnit('stress')}) ←`,
+                      text: `Bending Stress (${getUnit('stress')})`,
                       color: isDarkMode ? '#e5e7eb' : '#374151'
                     },
                     grid: {
@@ -424,11 +370,15 @@ const StressAnalysis = ({ beamData, results }) => {
                       color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                     },
                     ticks: {
-                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      color: isDarkMode ? '#d1d5db' : '#6b7280',
+                      callback: function(value) {
+                        return Number(value).toFixed(2);
+                      }
                     }
                   },
                   y: {
                     display: true,
+                    position: 'right',
                     title: {
                       display: true,
                       text: `Distance from Neutral Axis (${getUnit('length')})`,
@@ -439,7 +389,10 @@ const StressAnalysis = ({ beamData, results }) => {
                       color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                     },
                     ticks: {
-                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      color: isDarkMode ? '#d1d5db' : '#6b7280',
+                      callback: function(value) {
+                        return Number(value).toFixed(2);
+                      }
                     }
                   }
                 }
@@ -572,18 +525,7 @@ const StressAnalysis = ({ beamData, results }) => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Shear Stress Distribution
           </h3>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex items-center">
-            <span className="mr-2">Stress Direction:</span>
-            <svg width="60" height="20" viewBox="0 0 60 20" className="mr-2">
-              <defs>
-                <marker id="arrowhead-right" markerWidth="10" markerHeight="7" 
-                 refX="0" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
-                </marker>
-              </defs>
-              <line x1="10" y1="10" x2="50" y2="10" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowhead-right)" />
-            </svg>
-            <span className="text-amber-600 dark:text-amber-400">Left to Right</span>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex flex-col items-center">
           </div>
           <div className="h-96">
             <Line 
@@ -604,7 +546,10 @@ const StressAnalysis = ({ beamData, results }) => {
                       color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                     },
                     ticks: {
-                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      color: isDarkMode ? '#d1d5db' : '#6b7280',
+                      callback: function(value) {
+                        return Number(value).toFixed(2);
+                      }
                     }
                   },
                   y: {
@@ -619,12 +564,68 @@ const StressAnalysis = ({ beamData, results }) => {
                       color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                     },
                     ticks: {
-                      color: isDarkMode ? '#d1d5db' : '#6b7280'
+                      color: isDarkMode ? '#d1d5db' : '#6b7280',
+                      callback: function(value) {
+                        return Number(value).toFixed(2);
+                      }
                     }
                   }
                 }
               }} 
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Analysis Position Control */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Stress Analysis Position</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Analysis Position: {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max={convertValue(beamData.length, 'length', 'SI')}
+              step="0.1"
+              value={displayAnalysisPosition}
+              onChange={(e) => setAnalysisPosition(convertValue(parseFloat(e.target.value), 'length', null, 'SI'))}
+              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+            />
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <span>0</span>
+              <span>{convertValue(beamData.length, 'length', 'SI').toFixed(1)} {getUnit('length')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stress Values at Analysis Point */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
+          <h4 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">Maximum Bending Stress</h4>
+          <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+            {convertValue(stressAtAnalysisPoint.bendingStress, 'stress', 'SI').toFixed(2)} {getUnit('stress')}
+          </div>
+          <div className="text-sm text-purple-600 dark:text-purple-400">
+            at position {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
+          </div>
+          <div className="text-xs text-purple-500 dark:text-purple-400 mt-1">
+            Moment: {convertValue(stressAtAnalysisPoint.moment, 'moment', 'SI').toFixed(2)} {getUnit('moment')}
+          </div>
+        </div>
+        <div className="card bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+          <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Maximum Shear Stress</h4>
+          <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+            {convertValue(stressAtAnalysisPoint.shearStress, 'stress', 'SI').toFixed(2)} {getUnit('stress')}
+          </div>
+          <div className="text-sm text-amber-600 dark:text-amber-400">
+            at position {displayAnalysisPosition.toFixed(2)} {getUnit('length')}
+          </div>
+          <div className="text-xs text-amber-500 dark:text-amber-400 mt-1">
+            Shear Force: {convertValue(stressAtAnalysisPoint.shearForce, 'force', 'SI').toFixed(2)} {getUnit('force')}
           </div>
         </div>
       </div>
